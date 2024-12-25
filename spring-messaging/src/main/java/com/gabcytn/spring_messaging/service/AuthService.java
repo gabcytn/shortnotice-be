@@ -17,6 +17,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -53,7 +54,9 @@ public class AuthService {
 
             SecurityContextHolder.setContext(securityContext);
             securityContextRepository.saveContext(securityContext, request, response);
-            saveUuidInSession(user, request);
+
+            final Optional<User> returnedUser = userRepository.findByUsername(user.getUsername());
+            saveUuidInSession(returnedUser.orElseThrow(), request);
 
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (BadCredentialsException e) {
@@ -79,7 +82,7 @@ public class AuthService {
     }
 
     private void saveUuidInSession (User user, HttpServletRequest request) {
-        String sessionId = request.getSession().getId();
-        request.getSession().setAttribute(sessionId, user.getId());
+        request.getSession().setAttribute("uuid", user.getId().toString());
+        request.getSession().setAttribute("username", user.getUsername());
     }
 }
