@@ -1,5 +1,7 @@
 import { FormEvent } from "react";
 
+const SERVER_URL = import.meta.env.VITE_SERVER_URL;
+
 export async function handleLoginSubmit(
   e: FormEvent,
   username: string,
@@ -8,7 +10,7 @@ export async function handleLoginSubmit(
 ) {
   e.preventDefault();
   try {
-    const res = await fetch("http://localhost:8080/login", {
+    const res = await fetch(`${SERVER_URL}/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +35,7 @@ export async function handleLoginSubmit(
 }
 
 export async function handleLogout(navigate: (path: string) => void) {
-  const res = await fetch("http://localhost:8080/logout", {
+  const res = await fetch(`${SERVER_URL}/logout`, {
     method: "POST",
     credentials: "include",
   });
