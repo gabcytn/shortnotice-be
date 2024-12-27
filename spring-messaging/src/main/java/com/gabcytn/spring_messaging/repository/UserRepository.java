@@ -16,7 +16,16 @@ public class UserRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<User> findByUsername (String username) {
+    public Optional<User> findById(UUID uuid) {
+        final String sqlQuery = """
+                SELECT *
+                FROM users
+                WHERE id = ?
+                """;
+        return Optional.of(jdbcTemplate.query(sqlQuery, userResultSetExtractor(), uuid.toString()));
+    }
+
+    public Optional<User> findByUsername(String username) {
         String sqlQuery = """
                 SELECT *
                 FROM users
@@ -25,7 +34,7 @@ public class UserRepository {
         return Optional.ofNullable(jdbcTemplate.query(sqlQuery, userResultSetExtractor(), username));
     }
 
-    public void save (User user) {
+    public void save(User user) {
         String sqlQuery = """
                 INSERT INTO users (id, username, password)
                 VALUES (?, ?, ?)
@@ -33,7 +42,7 @@ public class UserRepository {
         jdbcTemplate.update(sqlQuery, user.getId(), user.getUsername(), user.getPassword());
     }
 
-    private ResultSetExtractor<User> userResultSetExtractor () {
+    private ResultSetExtractor<User> userResultSetExtractor() {
         return rs -> {
             if (rs.next()) {
                 User user = new User();
