@@ -41,3 +41,16 @@ CREATE TABLE messages (
 		(receiver_id IS NOT NULL AND group_id IS NULL)
 	)
 );
+
+CREATE VIEW messages_view AS
+SELECT 
+    sender.username AS sender,
+    receiver.username AS receiver,
+    messages.message, 
+    messages.sent_at
+FROM messages
+JOIN users AS sender
+    ON messages.sender_id = sender.id
+JOIN users AS receiver
+    ON messages.receiver_id = receiver.id;
+
