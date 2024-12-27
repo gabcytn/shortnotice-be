@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 import { handleLogout } from "./pages/auth/functions";
 import { useEffect, useState } from "react";
 import { Client } from "@stomp/stompjs";
+import Button from "./components/Button";
+import FormInput from "./components/FormInput";
 
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
 const stompClient = new Client({
@@ -9,7 +11,7 @@ const stompClient = new Client({
   onConnect: () => {
     stompClient.subscribe("/topic/message", (message) => {
       const messageFromServer = JSON.parse(message.body);
-      console.log(messageFromServer.message);
+      console.log(messageFromServer);
     });
   },
 });
@@ -35,33 +37,32 @@ function App() {
   return (
     <div className="container">
       <h2 className="text-center">Messaging app</h2>
-      <input
-        className="form-control"
+      <FormInput
         type="text"
         value={message}
-        onChange={(e) => {
-          setMessage(e.target.value);
-        }}
+        setValue={setMessage}
+        id="message"
+        label="Message"
       />
-      <button
-        className="btn btn-primary"
+      <Button
+        title="Send"
+        className="btn-primary"
+        type="button"
         onClick={() => {
           stompClient.publish({
             destination: "/app/test",
             body: JSON.stringify({ message: message }),
           });
         }}
-      >
-        Send
-      </button>
-      <button
-        className="btn btn-danger mt-3"
+      />
+      <Button
+        title="Logout"
+        className="btn-danger mt-3"
+        type="button"
         onClick={() => {
           handleLogout(navigate);
         }}
-      >
-        Logout
-      </button>
+      />
     </div>
   );
 }
