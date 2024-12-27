@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class PerformanceLoggingAspect {
     private final Logger LOGGER = LoggerFactory.getLogger(PerformanceLoggingAspect.class);
 
-    @Around("execution(* com.gabcytn.spring_messaging.controller.AuthController.login(..))")
+    @Around("execution(* com.gabcytn.spring_messaging.http_controller.AuthController.login(..))")
     public Object logPerformance (ProceedingJoinPoint joinPoint) throws Throwable {
         long initTime = System.currentTimeMillis();
         Object object = joinPoint.proceed();

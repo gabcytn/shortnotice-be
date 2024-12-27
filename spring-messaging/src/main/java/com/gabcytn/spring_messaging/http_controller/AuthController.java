@@ -1,4 +1,4 @@
-package com.gabcytn.spring_messaging.controller;
+package com.gabcytn.spring_messaging.http_controller;
 
 import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.service.AuthService;
