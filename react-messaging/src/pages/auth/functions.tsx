@@ -6,9 +6,11 @@ export async function handleLoginSubmit(
   e: FormEvent,
   username: string,
   password: string,
+  setIsLoading: (val: boolean) => void,
   navigate: (path: string) => void,
 ) {
   e.preventDefault();
+  setIsLoading(true);
   try {
     const res = await fetch(`${SERVER_URL}/login`, {
       method: "POST",
@@ -23,11 +25,13 @@ export async function handleLoginSubmit(
     });
     if (res.status === 200) {
       sessionStorage.setItem("isLoggedIn", "true");
+      setIsLoading(false);
       navigate("/");
       return;
     }
     throw new Error(`Error status code of ${res.status}`);
   } catch (e: unknown) {
+    setIsLoading(false);
     if (e instanceof Error) {
       console.error(e.message);
     }
