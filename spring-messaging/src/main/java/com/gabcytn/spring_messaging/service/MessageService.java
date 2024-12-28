@@ -39,8 +39,9 @@ public class MessageService {
                     messageReceived.getMessage(),
                     timestamp
             );
+            final String senderUsername = (String) headerAccessor.getSessionAttributes().get("username");
             return new PrivateMessageView(
-                    messageReceived.getSender(),
+                    senderUsername,
                     receiverUsername,
                     messageReceived.getMessage(),
                     timestamp
