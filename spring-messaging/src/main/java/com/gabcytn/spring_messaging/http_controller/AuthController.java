@@ -36,4 +36,9 @@ public class AuthController {
     public String sessionId (HttpServletRequest request) {
         return request.getSession().getId();
     }
+
+    @GetMapping("/username")
+    public String getUsername(HttpServletRequest request) {
+        return (String) request.getSession().getAttribute("username");
+    }
 }
