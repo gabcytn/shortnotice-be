@@ -25,16 +25,16 @@ export async function handleLoginSubmit(
     });
     if (res.status === 200) {
       sessionStorage.setItem("isLoggedIn", "true");
-      setIsLoading(false);
       navigate("/");
       return;
     }
     throw new Error(`Error status code of ${res.status}`);
   } catch (e: unknown) {
-    setIsLoading(false);
     if (e instanceof Error) {
       console.error(e.message);
     }
+  } finally {
+    setIsLoading(false);
   }
 }
 
@@ -46,5 +46,43 @@ export async function handleLogout(navigate: (path: string) => void) {
   if (res.status === 200) {
     sessionStorage.clear();
     navigate("/login");
+  }
+}
+
+export async function handleRegisterSubmit(
+  e: FormEvent,
+  username: string,
+  password: string,
+  confirmPassword: string,
+  setIsLoading: (val: boolean) => void,
+  navigate: (path: string) => void,
+) {
+  e.preventDefault();
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
+
+  try {
+    setIsLoading(true);
+    const res = await fetch(`${SERVER_URL}/register`, {
+      method: "POST",
+      credentials: "include",
+      body: JSON.stringify({
+        username: username,
+        password: password,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`Error status code of ${res.status}`);
+
+    navigate("/login");
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error("Error registering user");
+      console.error(e.message);
+    }
+  } finally {
+    setIsLoading(false);
   }
 }
