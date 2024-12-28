@@ -1,11 +1,19 @@
 type FormInputProps = {
   id?: string;
   label?: string;
+  disabled?: boolean;
   type: string;
   value: string;
   setValue: (val: string) => void;
 };
-function FormInput({ id, label, type, value, setValue }: FormInputProps) {
+function FormInput({
+  id,
+  label,
+  type,
+  value,
+  setValue,
+  disabled,
+}: FormInputProps) {
   return (
     <>
       {label ? (
@@ -21,6 +29,7 @@ function FormInput({ id, label, type, value, setValue }: FormInputProps) {
         onChange={(e) => {
           setValue(e.target.value);
         }}
+        disabled={disabled}
       />
     </>
   );
