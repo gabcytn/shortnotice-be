@@ -1,0 +1,38 @@
+.wrapper {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100vh;
+	width: 100vw;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+	background-color: rgba(238, 238, 238, 0.75);
+}
+
+.loader {
+	border: 16px solid #fff;
+	/* Light grey */
+	border-top: 16px solid rgba(0, 0, 0, 0.75);
+	/* Blue */
+	border-radius: 50%;
+	width: 80px;
+	height: 80px;
+	animation: spin 2s linear infinite;
+}
+
+.loadingText {
+	margin-top: 1.5rem;
+	font-size: 1.25rem;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
