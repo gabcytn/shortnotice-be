@@ -30,6 +30,7 @@ function FormInput({
           setValue(e.target.value);
         }}
         disabled={disabled}
+        required
       />
     </>
   );
