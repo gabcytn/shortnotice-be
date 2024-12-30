@@ -7,50 +7,53 @@ CREATE TABLE users (
 	CONSTRAINT users_ak UNIQUE (username)
 );
 
-CREATE TABLE groups (
+CREATE TABLE conversations (
 	id SERIAL NOT NULL,
-	CONSTRAINT groups_pk PRIMARY KEY (id)
+	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+	CONSTRAINT conversations_pk PRIMARY KEY (id)
 );
 
-CREATE TABLE group_members (
-	id INT NOT NULL,
+CREATE TABLE conversation_members (
+	conversation_id INT NOT NULL,
 	user_id UUID NOT NULL,
-	CONSTRAINT group_members_pk PRIMARY KEY (id, user_id),
-	CONSTRAINT group_members_id_fk FOREIGN KEY(id) REFERENCES groups(id)
-	ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT group_members_user_id_fk FOREIGN KEY(user_id) REFERENCES users(id)
-	ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT conversation_id_fk FOREIGN KEY (conversation_id)
+	REFERENCES conversations(id),
+	CONSTRAINT user_id_fk FOREIGN KEY (user_id)
+	REFERENCES users(id)
 );
 
 CREATE TABLE messages (
 	id SERIAL NOT NULL,
+	conversation_id INT NOT NULL,
 	sender_id UUID NOT NULL,
-	receiver_id UUID,
-	group_id INT,
 	message TEXT NOT NULL,
-	sent_at TIMESTAMP DEFAULT NOW(),
-	CONSTRAINT messages_pk PRIMARY KEY (id),
-	CONSTRAINT messages_sender_fk FOREIGN KEY (sender_id) REFERENCES users(id)
-	ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT messages_receiver_fk FOREIGN KEY (receiver_id) REFERENCES users(id)
-  	ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT messages_group_fk FOREIGN KEY(group_id) REFERENCES groups(id)
-	ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT message_destination_chk CHECK (
-		(receiver_id IS NULL AND group_id IS NOT NULL) OR
-		(receiver_id IS NOT NULL AND group_id IS NULL)
-	)
+	sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+	CONSTRAINT messages_pk PRIMARY KEY(id),
+	CONSTRAINT messages_conversation_id_fk FOREIGN KEY (conversation_id)
+	REFERENCES conversations(id),
+	CONSTRAINT messages_sender_id FOREIGN KEY (sender_id)
+	REFERENCES users(id)
 );
 
-CREATE VIEW messages_view AS
-SELECT 
-    sender.username AS sender,
-    receiver.username AS receiver,
-    messages.message, 
-    messages.sent_at
-FROM messages
-JOIN users AS sender
-    ON messages.sender_id = sender.id
-JOIN users AS receiver
-    ON messages.receiver_id = receiver.id;
+CREATE TABLE message_requests (
+	id SERIAL NOT NULL,
+	sender UUID NOT NULL,
+	recipient UUID NOT NULL,
+	message TEXT NOT NULL,
+	sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+	CONSTRAINT message_requests_pk PRIMARY KEY(id),
+	CONSTRAINT sender_fk FOREIGN KEY (sender)
+		REFERENCES users(id),
+	CONSTRAINT recipient_fk FOREIGN KEY (recipient)
+		REFERENCES users(id)
+);
+
+CREATE TABLE blocks (
+	blocked UUID NOT NULL,
+	blocker UUID NOT NULL,
+	CONSTRAINT blocked_fk FOREIGN KEY (blocked)
+		REFERENCES users(id),
+	CONSTRAINT blocker_fk FOREIGN KEY (blocker)
+		REFERENCES users(id)
+);
 
