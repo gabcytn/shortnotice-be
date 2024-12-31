@@ -2,7 +2,7 @@ package com.gabcytn.spring_messaging.service;
 
 import com.gabcytn.spring_messaging.model.Message;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
-import com.gabcytn.spring_messaging.repository.MessageRequestRepository;
+import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
@@ -13,18 +13,18 @@ import java.util.UUID;
 
 @Service
 public class MessageService {
-    private final MessageRequestRepository messageRequestRepository;
+    private final ConversationsRepository conversationsRepository;
 
     public MessageService(
-            MessageRequestRepository messageRequestRepository
+            ConversationsRepository conversationsRepository
     ) {
-        this.messageRequestRepository = messageRequestRepository;
+        this.conversationsRepository = conversationsRepository;
     }
 
     public Optional<PrivateMessage> createMessageRequest (
             SimpMessageHeaderAccessor headerAccessor,
             Message messageReceived,
-            UUID receiverUUID
+            UUID recipientUUID
     ) {
         try {
             final UUID senderUUID = getMessageSenderUUID(headerAccessor);
@@ -32,7 +32,8 @@ public class MessageService {
             final String content = messageReceived.content();
             final Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
 
-            messageRequestRepository.save(senderUUID, receiverUUID, content);
+            final int conversationId = conversationsRepository.create(true);
+            conversationsRepository.saveMembers(conversationId, senderUUID, recipientUUID);
 
             return Optional.of(new PrivateMessage(senderUsername, content, currentTimestamp));
         } catch (Exception e) {
