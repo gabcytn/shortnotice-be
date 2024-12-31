@@ -12,6 +12,7 @@ CREATE TABLE users (
 CREATE TABLE conversations (
 	id SERIAL NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+	message_request BOOLEAN NOT NULL,
 	CONSTRAINT conversations_pk PRIMARY KEY (id)
 );
 
@@ -37,20 +38,6 @@ CREATE TABLE messages (
 	REFERENCES users(id)
 );
 
-CREATE TABLE message_requests (
-	id SERIAL NOT NULL,
-	sender UUID NOT NULL,
-	recipient UUID NOT NULL,
-	message TEXT NOT NULL,
-	sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
-	CONSTRAINT message_requests_pk PRIMARY KEY(id),
-	CONSTRAINT sender_fk FOREIGN KEY (sender)
-		REFERENCES users(id),
-	CONSTRAINT recipient_fk FOREIGN KEY (recipient)
-		REFERENCES users(id),
-	CHECK (sender <> recipient)
-);
-
 CREATE TABLE blocks (
 	blocked UUID NOT NULL,
 	blocker UUID NOT NULL,
@@ -59,22 +46,3 @@ CREATE TABLE blocks (
 	CONSTRAINT blocker_fk FOREIGN KEY (blocker)
 		REFERENCES users(id)
 );
-
-CREATE OR REPLACE FUNCTION one_directional_message_request() 
-RETURNS TRIGGER AS $$
-BEGIN
-	IF EXISTS (
-		SELECT 1 FROM message_requests
-		WHERE (NEW.sender = recipient
-		AND NEW.recipient = sender)
-	) THEN
-		RAISE EXCEPTION 'Message request should be one-directional';
-	END IF;
-	RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER message_requests_tr
-BEFORE INSERT OR UPDATE ON message_requests
-FOR EACH ROW
-EXECUTE FUNCTION one_directional_message_request();
