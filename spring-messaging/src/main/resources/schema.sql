@@ -2,7 +2,9 @@ CREATE TABLE users (
 	id UUID NOT NULL,
 	username VARCHAR(100) NOT NULL,
 	password VARCHAR(75) NOT NULL,
-	role VARCHAR(10) DEFAULT 'user',
+	profile_pic VARCHAR (255) NOT NULL 
+		DEFAULT 'https://res.cloudinary.com/dfvwoewft/image/upload/v1733883089/default-profile_r4f6xf.jpg',
+	role VARCHAR(10) NOT NULL DEFAULT 'user',
 	CONSTRAINT users_pk PRIMARY KEY (id),
 	CONSTRAINT users_ak UNIQUE (username)
 );
@@ -45,7 +47,8 @@ CREATE TABLE message_requests (
 	CONSTRAINT sender_fk FOREIGN KEY (sender)
 		REFERENCES users(id),
 	CONSTRAINT recipient_fk FOREIGN KEY (recipient)
-		REFERENCES users(id)
+		REFERENCES users(id),
+	CHECK (sender <> recipient)
 );
 
 CREATE TABLE blocks (
@@ -57,3 +60,21 @@ CREATE TABLE blocks (
 		REFERENCES users(id)
 );
 
+CREATE OR REPLACE FUNCTION one_directional_message_request() 
+RETURNS TRIGGER AS $$
+BEGIN
+	IF EXISTS (
+		SELECT 1 FROM message_requests
+		WHERE (NEW.sender = recipient
+		AND NEW.recipient = sender)
+	) THEN
+		RAISE EXCEPTION 'Message request should be one-directional';
+	END IF;
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER message_requests_tr
+BEFORE INSERT OR UPDATE ON message_requests
+FOR EACH ROW
+EXECUTE FUNCTION one_directional_message_request();
