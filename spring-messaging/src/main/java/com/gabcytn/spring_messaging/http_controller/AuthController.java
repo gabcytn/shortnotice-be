@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 public class AuthController {
     private final AuthService authService;
@@ -37,8 +39,8 @@ public class AuthController {
         return request.getSession().getId();
     }
 
-    @GetMapping("/username")
-    public String getUsername(HttpServletRequest request) {
-        return (String) request.getSession().getAttribute("username");
+    @GetMapping("/uuid")
+    public UUID getUsername(HttpServletRequest request) {
+        return UUID.fromString((String) request.getSession().getAttribute("username"));
     }
 }
