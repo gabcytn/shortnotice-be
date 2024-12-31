@@ -26,6 +26,15 @@ public class ConversationsRepository {
         return jdbcTemplate.queryForObject(sqlQuery, idRowMapper, isRequest);
     }
 
+    public void setRequestFalseById (int id) {
+        final String sqlQuery = """
+                UPDATE conversations
+                SET request = false
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(sqlQuery, id);
+    }
+
     public void saveMembers(int conversationId, UUID user1, UUID user2) {
         final String sqlQuery = """
                 INSERT INTO conversation_members (conversation_id, user_id)
