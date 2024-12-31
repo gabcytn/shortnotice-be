@@ -15,15 +15,15 @@ public class ConversationsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Integer create (boolean isRequest) {
+    public Integer create () {
         final String sqlQuery = """
                 INSERT INTO conversations (request)
-                VALUES (?)
+                VALUES (true)
                 RETURNING id
                 """;
         final RowMapper<Integer> idRowMapper = (rs, rowNum) -> rs.getInt("id");
 
-        return jdbcTemplate.queryForObject(sqlQuery, idRowMapper, isRequest);
+        return jdbcTemplate.queryForObject(sqlQuery, idRowMapper);
     }
 
     public void setRequestFalseById (int id) {
