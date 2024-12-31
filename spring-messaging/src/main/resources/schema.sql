@@ -12,7 +12,7 @@ CREATE TABLE users (
 CREATE TABLE conversations (
 	id SERIAL NOT NULL,
 	created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
-	message_request BOOLEAN NOT NULL,
+	request BOOLEAN NOT NULL,
 	CONSTRAINT conversations_pk PRIMARY KEY (id)
 );
 
@@ -20,9 +20,9 @@ CREATE TABLE conversation_members (
 	conversation_id INT NOT NULL,
 	user_id UUID NOT NULL,
 	CONSTRAINT conversation_id_fk FOREIGN KEY (conversation_id)
-	REFERENCES conversations(id),
+	    REFERENCES conversations(id),
 	CONSTRAINT user_id_fk FOREIGN KEY (user_id)
-	REFERENCES users(id)
+	    REFERENCES users(id)
 );
 
 CREATE TABLE messages (
@@ -33,9 +33,9 @@ CREATE TABLE messages (
 	sent_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
 	CONSTRAINT messages_pk PRIMARY KEY(id),
 	CONSTRAINT messages_conversation_id_fk FOREIGN KEY (conversation_id)
-	REFERENCES conversations(id),
+	    REFERENCES conversations(id),
 	CONSTRAINT messages_sender_id FOREIGN KEY (sender_id)
-	REFERENCES users(id)
+	    REFERENCES users(id)
 );
 
 CREATE TABLE blocks (
@@ -46,3 +46,6 @@ CREATE TABLE blocks (
 	CONSTRAINT blocker_fk FOREIGN KEY (blocker)
 		REFERENCES users(id)
 );
+
+-- CREATE INDEX conversations_request_idx
+-- ON conversations(request);
