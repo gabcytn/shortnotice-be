@@ -1,10 +1,8 @@
 package com.gabcytn.spring_messaging.service;
 
 import com.gabcytn.spring_messaging.model.Message;
-import com.gabcytn.spring_messaging.model.PrivateMessageView;
-import com.gabcytn.spring_messaging.model.User;
-import com.gabcytn.spring_messaging.repository.MessageRepository;
-import com.gabcytn.spring_messaging.repository.UserRepository;
+import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.repository.MessageRequestRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
@@ -15,41 +13,40 @@ import java.util.UUID;
 
 @Service
 public class MessageService {
-    private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
+    private final MessageRequestRepository messageRequestRepository;
 
-    public MessageService(MessageRepository messageRepository, UserRepository userRepository) {
-        this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
+    public MessageService(
+            MessageRequestRepository messageRequestRepository
+    ) {
+        this.messageRequestRepository = messageRequestRepository;
     }
 
-    public PrivateMessageView savePrivateMessage (
+    public Optional<PrivateMessage> createMessageRequest (
             SimpMessageHeaderAccessor headerAccessor,
             Message messageReceived,
-            String receiverUsername
+            UUID receiverUUID
     ) {
         try {
-            final UUID senderId = UUID.fromString((String) headerAccessor.getSessionAttributes().get("uuid"));
-            final Optional<User> user = userRepository.findByUsername(receiverUsername);
-            final UUID receiverId = user.orElseThrow().getId();
-            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-            messageRepository.savePrivateMessage(
-                    senderId,
-                    receiverId,
-                    messageReceived.getMessage(),
-                    timestamp
-            );
-            final String senderUsername = (String) headerAccessor.getSessionAttributes().get("username");
-            return new PrivateMessageView(
-                    senderUsername,
-                    receiverUsername,
-                    messageReceived.getMessage(),
-                    timestamp
-            );
+            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
+            final String senderUsername = getMessageSenderUsername(headerAccessor);
+            final String content = messageReceived.content();
+            final Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
+
+            messageRequestRepository.save(senderUUID, receiverUUID, content);
+
+            return Optional.of(new PrivateMessage(senderUsername, content, currentTimestamp));
         } catch (Exception e) {
-            System.err.println("Error in saving private message");
+            System.err.println("Error creating message request");
             System.err.println(e.getMessage());
-            return new PrivateMessageView();
+            return Optional.empty();
         }
+    }
+
+    private UUID getMessageSenderUUID(SimpMessageHeaderAccessor headerAccessor) {
+        return UUID.fromString((String) headerAccessor.getSessionAttributes().get("uuid"));
+    }
+
+    private String getMessageSenderUsername(SimpMessageHeaderAccessor headerAccessor) {
+        return (String) headerAccessor.getSessionAttributes().get("username");
     }
 }
