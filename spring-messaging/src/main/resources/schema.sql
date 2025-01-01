@@ -41,10 +41,12 @@ CREATE TABLE messages (
 CREATE TABLE blocks (
 	blocked UUID NOT NULL,
 	blocker UUID NOT NULL,
+	CONSTRAINT blocks_pk PRIMARY KEY (blocked, blocker),
 	CONSTRAINT blocked_fk FOREIGN KEY (blocked)
 		REFERENCES users(id),
 	CONSTRAINT blocker_fk FOREIGN KEY (blocker)
-		REFERENCES users(id)
+		REFERENCES users(id),
+	CONSTRAINT blocks_chk CHECK(blocked <> blocker)
 );
 
 -- CREATE INDEX conversations_request_idx
