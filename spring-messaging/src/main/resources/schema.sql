@@ -19,6 +19,8 @@ CREATE TABLE conversations (
 CREATE TABLE conversation_members (
 	conversation_id INT NOT NULL,
 	user_id UUID NOT NULL,
+	CONSTRAINT conversation_members_pk 
+		PRIMARY KEY(conversation_id, user_id),
 	CONSTRAINT conversation_id_fk FOREIGN KEY (conversation_id)
 	    REFERENCES conversations(id),
 	CONSTRAINT user_id_fk FOREIGN KEY (user_id)
