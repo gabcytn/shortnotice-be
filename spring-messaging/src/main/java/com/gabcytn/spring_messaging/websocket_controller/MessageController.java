@@ -30,9 +30,19 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final Optional<PrivateMessage> privateMessageView =
+        final Optional<PrivateMessage> messageToSend =
                 messageService.createMessageRequest(headerAccessor, messageReceived, uuid);
-        messagingTemplate.convertAndSend("/topic/private/" + uuid, privateMessageView.orElseThrow());
+        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
     }
 
+    @MessageMapping("/approve/{conversationId}")
+    public void approveMessageRequest(
+            @DestinationVariable int conversationId,
+            Message messageReceived,
+            SimpMessageHeaderAccessor headerAccessor
+    ) {
+        final Optional<PrivateMessage> messageToSend =
+                messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
+        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
+    }
 }
