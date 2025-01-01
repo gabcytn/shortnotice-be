@@ -2,8 +2,11 @@ package com.gabcytn.spring_messaging.service;
 
 import com.gabcytn.spring_messaging.model.Message;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.User;
+import com.gabcytn.spring_messaging.repository.BlocksRepository;
 import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import com.gabcytn.spring_messaging.repository.MessageRepository;
+import com.gabcytn.spring_messaging.repository.UserRepository;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
@@ -16,26 +19,30 @@ import java.util.UUID;
 public class MessageService {
     private final ConversationsRepository conversationsRepository;
     private final MessageRepository messageRepository;
+    private final BlocksRepository blocksRepository;
+    private final UserRepository userRepository;
 
     public MessageService(
             ConversationsRepository conversationsRepository,
-            MessageRepository messageRepository
-    ) {
+            MessageRepository messageRepository,
+            BlocksRepository blocksRepository,
+            UserRepository userRepository) {
         this.conversationsRepository = conversationsRepository;
         this.messageRepository = messageRepository;
+        this.blocksRepository = blocksRepository;
+        this.userRepository = userRepository;
     }
 
-    public Optional<PrivateMessage> createMessageRequest (
-            SimpMessageHeaderAccessor headerAccessor,
-            Message messageReceived,
-            UUID recipientUUID
-    ) {
-        try {
+    public Optional<PrivateMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, UUID recipientUUID)
+    {
+        try
+        {
             final UUID senderUUID = getMessageSenderUUID(headerAccessor);
             final String senderUsername = getMessageSenderUsername(headerAccessor);
             final String content = messageReceived.content();
             final Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
 
+            if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID)) { return Optional.empty(); }
             if (isMessageRequestExisting(senderUUID, recipientUUID)) return Optional.empty();
 
             final int conversationId = conversationsRepository.create();
@@ -43,29 +50,34 @@ public class MessageService {
             messageRepository.save(conversationId, senderUUID, content);
 
             return Optional.of(new PrivateMessage(senderUsername, content, currentTimestamp));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("Error creating message request");
             System.err.println(e.getMessage());
             return Optional.empty();
         }
     }
 
-    public Optional<PrivateMessage> acceptMessageRequest (
-            SimpMessageHeaderAccessor headerAccessor,
-            Message messageReceived,
-            int conversationId
-    ) {
-        try {
+    public Optional<PrivateMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    {
+        try
+        {
             final UUID senderUUID = getMessageSenderUUID(headerAccessor);
             final String senderUsername = getMessageSenderUsername(headerAccessor);
             final String content = messageReceived.content();
             final Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
+            final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
 
+            if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.orElseThrow().getId(), senderUUID))
+                return Optional.empty();
             conversationsRepository.setRequestFalseById(conversationId);
             messageRepository.save(conversationId, senderUUID, content);
 
             return Optional.of(new PrivateMessage(senderUsername, content, currentTimestamp));
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.err.println("Error accepting message request");
             System.err.println(e.getMessage());
             return Optional.empty();
