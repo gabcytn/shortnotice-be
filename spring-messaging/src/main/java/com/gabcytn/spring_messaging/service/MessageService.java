@@ -42,8 +42,8 @@ public class MessageService {
             final String content = messageReceived.content();
             final Timestamp currentTimestamp = Timestamp.valueOf(LocalDateTime.now());
 
-            if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID)) { return Optional.empty(); }
-            if (isMessageRequestExisting(senderUUID, recipientUUID)) return Optional.empty();
+            if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID)) return Optional.empty();
+            if (conversationsRepository.isConversationExisting(recipientUUID, senderUUID)) return Optional.empty();
 
             final int conversationId = conversationsRepository.create();
             conversationsRepository.saveMembers(conversationId, senderUUID, recipientUUID);
@@ -82,10 +82,6 @@ public class MessageService {
             System.err.println(e.getMessage());
             return Optional.empty();
         }
-    }
-
-    private Boolean isMessageRequestExisting (UUID sender, UUID recipient) {
-        return conversationsRepository.isConversationExisting(sender, recipient);
     }
 
     private UUID getMessageSenderUUID(SimpMessageHeaderAccessor headerAccessor) {
