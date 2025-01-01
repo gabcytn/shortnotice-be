@@ -6,12 +6,12 @@ export async function subscribeToStomp(
 ) {
   try {
     const server = import.meta.env.VITE_SERVER_URL;
-    const res = await fetch(`${server}/username`, {
+    const res = await fetch(`${server}/uuid`, {
       credentials: "include",
     });
-    const username = await res.text();
+    const uuid = await res.text();
     stompClient.onConnect = () => {
-      stompClient.subscribe(`/topic/private/${username}`, callback);
+      stompClient.subscribe(`/topic/private/${uuid}`, callback);
     };
     stompClient.activate();
   } catch (e: unknown) {
