@@ -1,10 +1,12 @@
 package com.gabcytn.spring_messaging.repository;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Repository
@@ -41,5 +43,24 @@ public class ConversationsRepository {
                 VALUES (?, ?), (?, ?)
                 """;
         jdbcTemplate.update(sqlQuery, conversationId, user1, conversationId, user2);
+    }
+
+    public Boolean isConversationExisting (UUID user1, UUID user2) {
+        final String sqlQuery = """
+                SELECT
+                    COUNT(cm1.conversation_id) AS count
+                FROM
+                    conversation_members AS cm1
+                JOIN
+                    conversation_members AS cm2
+                ON
+                    cm1.conversation_id = cm2.conversation_id
+                WHERE
+                    cm1.user_id = ?
+                    AND
+                    cm2.user_id = ?
+                """;
+        final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("count") : 0;
+        return Objects.equals(jdbcTemplate.query(sqlQuery, extractor, user1, user2), 1);
     }
 }
