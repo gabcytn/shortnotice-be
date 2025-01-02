@@ -51,6 +51,34 @@ CREATE TABLE blocks (
 	CONSTRAINT blocks_chk CHECK(blocked <> blocker)
 );
 
+CREATE VIEW conversations_view AS
+SELECT 
+	DISTINCT(users.id) AS user_id, username, cm1.conversation_id AS conversation_id
+FROM 
+	conversation_members AS cm1
+JOIN 
+	conversation_members AS cm2 ON cm1.conversation_id = cm2.conversation_id
+JOIN
+	conversations ON conversations.id = cm2.conversation_id
+JOIN
+	users ON cm2.user_id = users.id
+WHERE 
+	conversations.request = false;
+
+CREATE VIEW conversations_request_view AS
+SELECT 
+	DISTINCT(users.id) AS user_id, username, cm1.conversation_id AS conversation_id
+FROM 
+	conversation_members AS cm1
+JOIN 
+	conversation_members AS cm2 ON cm1.conversation_id = cm2.conversation_id
+JOIN
+	conversations ON conversations.id = cm2.conversation_id
+JOIN
+	users ON cm2.user_id = users.id
+WHERE 
+	conversations.request = true;
+
 CREATE INDEX blocker_idx
 ON blocks(blocker_id);
 
