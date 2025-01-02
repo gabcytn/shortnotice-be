@@ -56,5 +56,6 @@ ON blocks(blocker_id);
 
 CREATE INDEX blocked_idx
 ON blocks(blocked_id);
--- CREATE INDEX conversations_request_idx
--- ON conversations(request);
+
+CREATE INDEX cm_user_idx
+ON conversation_members(user_id);
