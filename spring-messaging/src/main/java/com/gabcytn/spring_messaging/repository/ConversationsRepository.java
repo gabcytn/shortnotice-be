@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.Objects;
 import java.util.UUID;
 
 @Repository
@@ -44,10 +43,10 @@ public class ConversationsRepository {
         jdbcTemplate.update(sqlQuery, conversationId, user1, conversationId, user2);
     }
 
-    public Boolean isConversationExisting (UUID user1, UUID user2) {
+    public Integer existsByMembers(UUID user1, UUID user2) {
         final String sqlQuery = """
                 SELECT
-                    COUNT(cm1.conversation_id) AS count
+                    cm1.conversation_id
                 FROM
                     conversation_members AS cm1
                 JOIN
@@ -60,7 +59,8 @@ public class ConversationsRepository {
                     cm2.user_id = ?
                 """;
         final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("count") : 0;
-        return Objects.equals(jdbcTemplate.query(sqlQuery, extractor, user1, user2), 1);
+        final Object result = jdbcTemplate.query(sqlQuery, extractor, user1, user2);
+        return result != null ? (int) result : 0;
     }
 
     public Boolean existsById (int id) {
