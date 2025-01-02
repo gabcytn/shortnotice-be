@@ -62,4 +62,19 @@ public class ConversationsRepository {
         final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("count") : 0;
         return Objects.equals(jdbcTemplate.query(sqlQuery, extractor, user1, user2), 1);
     }
+
+    public Boolean existsById (int id) {
+        final String sqlQuery = """
+                SELECT
+                    COUNT(id) AS id
+                FROM
+                    conversations
+                WHERE
+                    id = ?
+                """;
+        final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("count") : 0;
+        Object result = jdbcTemplate.query(sqlQuery, extractor, id);
+
+        return result != null && (int) result > 0;
+    }
 }
