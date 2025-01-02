@@ -86,6 +86,31 @@ public class MessageService {
         }
     }
 
+    public Optional<PrivateMessage> sendPrivateMessage (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    {
+        try
+        {
+            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
+            final String senderUsername = getMessageSenderUsername(headerAccessor);
+            final Optional<User> user = userRepository.findByUsername(messageReceived.recipient());
+
+            if (blocksRepository.existsByBlockerIdAndBlockedId(user.orElseThrow().getId(), senderUUID))
+                throw new Error("Sender is blocked by the recipient");
+            if (conversationsRepository.existsById(conversationId))
+                throw new Error("Conversation does not exists");
+            messageRepository.save(conversationId, senderUUID, messageReceived.content());
+
+            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+            return Optional.of(new PrivateMessage(senderUsername, messageReceived.content(), timestamp));
+        }
+        catch (Exception e)
+        {
+            System.err.println(e.getMessage());
+            System.err.println("Error sending private message");
+            return Optional.empty();
+        }
+    }
+
     private UUID getMessageSenderUUID(SimpMessageHeaderAccessor headerAccessor) {
         return UUID.fromString((String) headerAccessor.getSessionAttributes().get("uuid"));
     }
