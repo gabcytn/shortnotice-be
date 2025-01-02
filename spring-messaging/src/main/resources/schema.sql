@@ -43,7 +43,7 @@ CREATE TABLE messages (
 CREATE TABLE blocks (
 	blocked_id UUID NOT NULL,
 	blocker_id UUID NOT NULL,
-	CONSTRAINT blocks_pk PRIMARY KEY (blocked, blocker),
+	CONSTRAINT blocks_pk PRIMARY KEY (blocked_id, blocker_id),
 	CONSTRAINT blocked_fk FOREIGN KEY (blocked)
 		REFERENCES users(id),
 	CONSTRAINT blocker_fk FOREIGN KEY (blocker)
