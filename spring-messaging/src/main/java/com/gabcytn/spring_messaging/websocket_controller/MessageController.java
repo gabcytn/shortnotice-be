@@ -2,6 +2,7 @@ package com.gabcytn.spring_messaging.websocket_controller;
 
 import com.gabcytn.spring_messaging.model.Message;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.Response;
 import com.gabcytn.spring_messaging.service.MessageService;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -30,9 +31,9 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final Optional<PrivateMessage> messageToSend =
+        final Response<PrivateMessage> messageToSend =
                 messageService.createMessageRequest(headerAccessor, messageReceived, uuid);
-        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
+        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }
 
     @MessageMapping("/approve/{conversationId}")
@@ -41,9 +42,9 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final Optional<PrivateMessage> messageToSend =
-                messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
-        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
+        // final Optional<PrivateMessage> messageToSend =
+                // messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
+        // messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
     }
 
     @MessageMapping("/private/{conversationId}")
@@ -52,8 +53,8 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final Optional<PrivateMessage> messageToSend =
-                messageService.sendPrivateMessage(headerAccessor, messageReceived, conversationId);
-        messagingTemplate.convertAndSend("/topic/private" + messageReceived.recipient(), messageToSend.orElseThrow());
+//        final Optional<PrivateMessage> messageToSend =
+//                messageService.sendPrivateMessage(headerAccessor, messageReceived, conversationId);
+//        messagingTemplate.convertAndSend("/topic/private" + messageReceived.recipient(), messageToSend.orElseThrow());
     }
 }
