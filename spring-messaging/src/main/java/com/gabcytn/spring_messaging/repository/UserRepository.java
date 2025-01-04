@@ -22,7 +22,7 @@ public class UserRepository {
                 FROM users
                 WHERE id = ?
                 """;
-        return Optional.of(jdbcTemplate.query(sqlQuery, userResultSetExtractor(), uuid.toString()));
+        return Optional.ofNullable(jdbcTemplate.query(sqlQuery, userResultSetExtractor(), uuid.toString()));
     }
 
     public Optional<User> findByUsername(String username) {
