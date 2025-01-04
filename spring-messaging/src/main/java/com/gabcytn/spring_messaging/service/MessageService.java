@@ -41,7 +41,7 @@ public class MessageService {
             final String content = messageReceived.content();
 
             if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID))
-                return new SocketResponse<>("ERROR","User is blocked", new PrivateMessage());
+                throw new Error("User is blocked");
 
             final Integer conversationId = conversationsRepository.existsByMembers(recipientUUID, senderUUID);
             if (conversationId != null && conversationId > 0)
