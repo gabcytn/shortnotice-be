@@ -73,6 +73,7 @@ public class MessageService {
             if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.get().getId(), senderUUID))
                 throw new Error("User is blocked");
 
+            conversationsRepository.setRequestFalseById(conversationId);
             messageRepository.save(conversationId, senderUUID, messageReceived.content());
             final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), false, timestamp);
             return new SocketResponse<>("OK", "Accepting message request handled successfully", privateMessage);
