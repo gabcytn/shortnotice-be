@@ -1,5 +1,5 @@
 package com.gabcytn.spring_messaging.model;
 
-import java.util.UUID;
+import java.sql.Timestamp;
 
-public record Conversation(int id, UUID recipientId, String recipientUsername) { }
+public record Conversation(int id, String senderUsername, String message, Timestamp sentAt) { }
