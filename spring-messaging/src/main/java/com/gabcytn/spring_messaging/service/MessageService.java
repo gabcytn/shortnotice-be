@@ -85,6 +85,35 @@ public class MessageService {
         }
     }
 
+    public SocketResponse<PrivateMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    {
+        try
+        {
+            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
+            final String senderUsername = getMessageSenderUsername(headerAccessor);
+            final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
+            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
+            if (recipient.isEmpty())
+                throw new Error("Recipient does not exist");
+            if (!conversationsRepository.existsById(conversationId))
+                throw new Error("Conversation does not exist");
+            if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.get().getId(), senderUUID))
+                throw new Error("Sender is blocked by the recipient");
+
+            messageRepository.save(conversationId, senderUUID, messageReceived.content());
+            final PrivateMessage privateMessage = new PrivateMessage(senderUsername, messageReceived.content(), conversationId, false, timestamp);
+
+            return new SocketResponse<>("OK", "Normal message handled successfully", privateMessage);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error sending normal message");
+            System.err.println(e.getMessage());
+            return new SocketResponse<>("ERROR", e.getMessage(), null);
+        }
+    }
+
     private SocketResponse<PrivateMessage> handleNewMessageRequest(UUID senderUUID, String senderUsername, UUID recipientUUID, String message) {
         final int newConversationId = conversationsRepository.create();
         conversationsRepository.saveMembers(newConversationId, senderUUID, recipientUUID);
