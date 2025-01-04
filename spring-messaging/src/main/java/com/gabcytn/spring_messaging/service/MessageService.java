@@ -3,6 +3,7 @@ package com.gabcytn.spring_messaging.service;
 import com.gabcytn.spring_messaging.model.Message;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
+import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.repository.BlocksRepository;
 import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import com.gabcytn.spring_messaging.repository.MessageRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -52,6 +54,32 @@ public class MessageService {
         catch (Exception e)
         {
             System.err.println("Error creating message request");
+            System.err.println(e.getMessage());
+            return new SocketResponse<>("ERROR", e.getMessage(), new PrivateMessage());
+        }
+    }
+
+    public SocketResponse<PrivateMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    {
+        try
+        {
+            final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
+            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
+            final String senderUsername = getMessageSenderUsername(headerAccessor);
+            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
+            if (recipient.isEmpty())
+                throw new Error("Recipient not found");
+            if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.get().getId(), senderUUID))
+                throw new Error("User is blocked");
+
+            messageRepository.save(conversationId, senderUUID, messageReceived.content());
+            final PrivateMessage privateMessage = new PrivateMessage(senderUsername, messageReceived.content(), conversationId, false, timestamp);
+            return new SocketResponse<>("OK", "Accepting message request handled successfully", privateMessage);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Error accepting message request");
             System.err.println(e.getMessage());
             return new SocketResponse<>("ERROR", e.getMessage(), new PrivateMessage());
         }
