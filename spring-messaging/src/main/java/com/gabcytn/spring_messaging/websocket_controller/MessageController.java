@@ -41,9 +41,9 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        // final Optional<PrivateMessage> messageToSend =
-                // messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
-        // messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend.orElseThrow());
+         final SocketResponse<PrivateMessage> messageToSend =
+                 messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
+         messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }
 
     @MessageMapping("/private/{conversationId}")
