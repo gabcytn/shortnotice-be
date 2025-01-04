@@ -2,7 +2,7 @@ package com.gabcytn.spring_messaging.websocket_controller;
 
 import com.gabcytn.spring_messaging.model.Message;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
-import com.gabcytn.spring_messaging.model.Response;
+import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.service.MessageService;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -11,7 +11,6 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
-import java.util.Optional;
 import java.util.UUID;
 
 @Controller
@@ -31,7 +30,7 @@ public class MessageController {
             Message messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final Response<PrivateMessage> messageToSend =
+        final SocketResponse<PrivateMessage> messageToSend =
                 messageService.createMessageRequest(headerAccessor, messageReceived, uuid);
         messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }

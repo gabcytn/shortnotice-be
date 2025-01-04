@@ -1,11 +1,11 @@
 package com.gabcytn.spring_messaging.model;
 
-public class Response<T> {
+public class SocketResponse<T> {
     private String code;
     private String message;
     private T body;
 
-    public Response(String code, String message, T body) {
+    public SocketResponse(String code, String message, T body) {
         this.code = code;
         this.message = message;
         this.body = body;
