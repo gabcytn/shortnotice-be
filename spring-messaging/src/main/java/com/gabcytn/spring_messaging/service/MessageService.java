@@ -74,7 +74,7 @@ public class MessageService {
                 throw new Error("User is blocked");
 
             messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final PrivateMessage privateMessage = new PrivateMessage(senderUsername, messageReceived.content(), conversationId, false, timestamp);
+            final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), false, timestamp);
             return new SocketResponse<>("OK", "Accepting message request handled successfully", privateMessage);
         }
         catch (Exception e)
@@ -102,7 +102,7 @@ public class MessageService {
                 throw new Error("Sender is blocked by the recipient");
 
             messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final PrivateMessage privateMessage = new PrivateMessage(senderUsername, messageReceived.content(), conversationId, false, timestamp);
+            final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), false, timestamp);
 
             return new SocketResponse<>("OK", "Normal message handled successfully", privateMessage);
         }
@@ -114,22 +114,24 @@ public class MessageService {
         }
     }
 
-    private SocketResponse<PrivateMessage> handleNewMessageRequest(UUID senderUUID, String senderUsername, UUID recipientUUID, String message) {
+    private SocketResponse<PrivateMessage> handleNewMessageRequest(UUID senderUUID, String senderUsername, UUID recipientUUID, String message)
+    {
         final int newConversationId = conversationsRepository.create();
         conversationsRepository.saveMembers(newConversationId, senderUUID, recipientUUID);
         messageRepository.save(newConversationId, senderUUID, message);
 
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final PrivateMessage privateMessage = new PrivateMessage(senderUsername, message, newConversationId, true, timestamp);
+        final PrivateMessage privateMessage = new PrivateMessage(newConversationId, senderUsername, message, true, timestamp);
 
         return new SocketResponse<>("OK", "New message request handled successfully", privateMessage);
     }
 
-    private SocketResponse<PrivateMessage> handleExistingMessageRequest (int conversationId, UUID senderId, String senderUsername, String message){
+    private SocketResponse<PrivateMessage> handleExistingMessageRequest (int conversationId, UUID senderId, String senderUsername, String message)
+    {
         messageRepository.save(conversationId, senderId, message);
 
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final PrivateMessage privateMessage = new PrivateMessage(senderUsername, message, conversationId, true, timestamp);
+        final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, message, true, timestamp);
 
         return new SocketResponse<>("OK", "Existing message request handled successfully", privateMessage);
     }

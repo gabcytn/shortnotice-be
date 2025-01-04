@@ -3,15 +3,15 @@ package com.gabcytn.spring_messaging.model;
 import java.sql.Timestamp;
 
 public class PrivateMessage {
+    private int conversationId;
     private String sender;
     private String message;
-    private int conversationId;
     private boolean isRequest;
     private Timestamp sentAt;
 
     public PrivateMessage() {}
 
-    public PrivateMessage(String sender, String message, int conversationId, boolean isRequest, Timestamp sentAt) {
+    public PrivateMessage(int conversationId, String sender, String message,  boolean isRequest, Timestamp sentAt) {
         this.sender = sender;
         this.message = message;
         this.conversationId = conversationId;
