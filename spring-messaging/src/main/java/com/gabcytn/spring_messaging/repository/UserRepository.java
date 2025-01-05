@@ -49,6 +49,7 @@ public class UserRepository {
                 user.setId(UUID.fromString(rs.getString("id")));
                 user.setUsername(rs.getString("username"));
                 user.setPassword(rs.getString("password"));
+                user.setProfilePic(rs.getString("profile_pic"));
                 user.setRole(rs.getString("role"));
                 return user;
             }
