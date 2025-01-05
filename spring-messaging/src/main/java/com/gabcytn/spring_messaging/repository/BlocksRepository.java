@@ -1,9 +1,12 @@
 package com.gabcytn.spring_messaging.repository;
 
+import com.gabcytn.spring_messaging.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -30,5 +33,31 @@ public class BlocksRepository {
         final Object result = jdbcTemplate.query(sqlQuery, extractor, blockerId, blockedId);
 
         return result != null && (int) result > 0;
+    }
+
+    public List<User> findByBlockerId (UUID blockerId) {
+        final String sqlQuery = """
+                SELECT
+                    users.id, users.username, users.profile_pic
+                FROM
+                    blocks
+                JOIN
+                    users
+                ON
+                    blocks.blocked_id = users.id
+                WHERE
+                    blocks.blocker_id = ?
+                """;
+        return jdbcTemplate.query(sqlQuery, userRowMapper(), blockerId);
+    }
+
+    private RowMapper<User> userRowMapper () {
+        return (rs, rowNum) -> {
+            final User user = new User();
+            user.setId(UUID.fromString(rs.getString("id")));
+            user.setUsername(rs.getString("username"));
+            user.setProfilePic(rs.getString("profile_pic"));
+            return user;
+        };
     }
 }
