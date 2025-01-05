@@ -3,8 +3,10 @@ package com.gabcytn.spring_messaging.repository;
 import com.gabcytn.spring_messaging.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -40,6 +42,24 @@ public class UserRepository {
                 VALUES (?, ?, ?)
                 """;
         jdbcTemplate.update(sqlQuery, user.getId(), user.getUsername(), user.getPassword());
+    }
+
+    public List<User> findByUsernameContainingIgnoreCase (String username) {
+        final String sqlQuery = """
+                SELECT id, username, profile_pic
+                FROM users
+                WHERE
+                    LOWER(username) LIKE ?
+                """;
+        final RowMapper<User> userRowMapper = (rs, rowNum) -> {
+            final User user = new User();
+            user.setId(UUID.fromString(rs.getString("id")));
+            user.setUsername(rs.getString("username"));
+            user.setProfilePic(rs.getString("profile_pic"));
+            return user;
+        };
+
+        return jdbcTemplate.query(sqlQuery, userRowMapper, username.toLowerCase() + "%");
     }
 
     private ResultSetExtractor<User> userResultSetExtractor() {
