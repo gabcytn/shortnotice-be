@@ -41,6 +41,18 @@ public class BlocksService {
         }
     }
 
+    public ResponseEntity<Void> unblockById (HttpServletRequest request, UUID blockedId) {
+        try {
+            final UUID blockerId = getRequesterUUID(request);
+            blocksRepository.deleteByBlockerIdAndBlockedId(blockerId, blockedId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error blocking user: " + blockedId);
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private UUID getRequesterUUID (HttpServletRequest request) {
         return UUID.fromString((String) request.getSession().getAttribute("uuid"));
     }
