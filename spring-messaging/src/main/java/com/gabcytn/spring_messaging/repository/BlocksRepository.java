@@ -59,6 +59,18 @@ public class BlocksRepository {
         jdbcTemplate.update(sqlQuery, blockerId, blockedId);
     }
 
+    public void deleteByBlockerIdAndBlockedId (UUID blockerId, UUID blockedId) {
+        final String sqlQuery = """
+                DELETE FROM
+                    blocks
+                WHERE
+                    blocker_id = ?
+                    AND
+                    blocked_id = ?
+                """;
+        jdbcTemplate.update(sqlQuery, blockerId, blockedId);
+    }
+
     private RowMapper<User> userRowMapper () {
         return (rs, rowNum) -> {
             final User user = new User();
