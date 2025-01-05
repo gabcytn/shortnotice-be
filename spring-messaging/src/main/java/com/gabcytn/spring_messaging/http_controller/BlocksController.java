@@ -27,4 +27,9 @@ public class BlocksController {
     public ResponseEntity<Void> blockById (@PathVariable UUID id, HttpServletRequest request) {
         return blocksService.blockById(request, id);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> unblockById (@PathVariable UUID id, HttpServletRequest request) {
+        return blocksService.unblockById(request, id);
+    }
 }
