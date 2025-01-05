@@ -51,6 +51,14 @@ public class BlocksRepository {
         return jdbcTemplate.query(sqlQuery, userRowMapper(), blockerId);
     }
 
+    public void save (UUID blockerId, UUID blockedId) {
+        final String sqlQuery = """
+                INSERT INTO blocks (blocker_id, blocked_id)
+                VALUES (?, ?)
+                """;
+        jdbcTemplate.update(sqlQuery, blockerId, blockedId);
+    }
+
     private RowMapper<User> userRowMapper () {
         return (rs, rowNum) -> {
             final User user = new User();
