@@ -8,11 +8,14 @@ import com.gabcytn.spring_messaging.repository.BlocksRepository;
 import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import com.gabcytn.spring_messaging.repository.MessageRepository;
 import com.gabcytn.spring_messaging.repository.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -112,6 +115,17 @@ public class MessageService {
             System.err.println("Error sending normal message");
             System.err.println(e.getMessage());
             return new SocketResponse<>("ERROR", e.getMessage(), null);
+        }
+    }
+
+    public ResponseEntity<List<PrivateMessage>> getMessageHistory (int conversationId) {
+        try {
+            final List<PrivateMessage> privateMessages = messageRepository.findAllByConversationId(conversationId);
+            return new ResponseEntity<>(privateMessages, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error fetching past messages");
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
