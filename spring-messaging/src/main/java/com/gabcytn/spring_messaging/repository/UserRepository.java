@@ -44,12 +44,26 @@ public class UserRepository {
         jdbcTemplate.update(sqlQuery, user.getId(), user.getUsername(), user.getPassword());
     }
 
-    public List<User> findByUsernameContainingIgnoreCase (String username) {
+    public List<User> findByUsernameContainingIgnoreCase (UUID blockerId, String username) {
         final String sqlQuery = """
-                SELECT id, username, profile_pic
-                FROM users
+                SELECT
+                    id, username, profile_pic
+                FROM
+                    users
+                LEFT JOIN
+                    blocks AS blocks1
+                ON
+                    blocks1.blocker_id = users.id
+                LEFT JOIN
+                    blocks AS blocks2
+                ON
+                    blocks2.blocked_id = users.id
                 WHERE
                     LOWER(username) LIKE ?
+                    AND
+                        blocks1.blocked_id IS DISTINCT FROM ?
+                    AND
+                        blocks2.blocker_id IS DISTINCT FROM ?
                 """;
         final RowMapper<User> userRowMapper = (rs, rowNum) -> {
             final User user = new User();
@@ -59,7 +73,7 @@ public class UserRepository {
             return user;
         };
 
-        return jdbcTemplate.query(sqlQuery, userRowMapper, username.toLowerCase() + "%");
+        return jdbcTemplate.query(sqlQuery, userRowMapper, username.toLowerCase() + "%", blockerId, blockerId);
     }
 
     private ResultSetExtractor<User> userResultSetExtractor() {
