@@ -1,6 +1,6 @@
 package com.gabcytn.spring_messaging.websocket_controller;
 
-import com.gabcytn.spring_messaging.model.Message;
+import com.gabcytn.spring_messaging.model.IncomingMessage;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.service.MessageService;
@@ -27,7 +27,7 @@ public class MessageController {
     @MessageMapping("/request/{uuid}")
     public void privateMessageRequest(
             @DestinationVariable UUID uuid,
-            Message messageReceived,
+            IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
         final SocketResponse<PrivateMessage> messageToSend =
@@ -38,7 +38,7 @@ public class MessageController {
     @MessageMapping("/approve/{conversationId}")
     public void approveMessageRequest(
             @DestinationVariable int conversationId,
-            Message messageReceived,
+            IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
          final SocketResponse<PrivateMessage> messageToSend =
@@ -49,7 +49,7 @@ public class MessageController {
     @MessageMapping("/private/{conversationId}")
     public void sendPrivateMessage (
             @DestinationVariable int conversationId,
-            Message messageReceived,
+            IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
         final SocketResponse<PrivateMessage> messageToSend =

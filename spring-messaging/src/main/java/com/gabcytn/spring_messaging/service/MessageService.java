@@ -1,6 +1,6 @@
 package com.gabcytn.spring_messaging.service;
 
-import com.gabcytn.spring_messaging.model.Message;
+import com.gabcytn.spring_messaging.model.IncomingMessage;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.model.User;
@@ -37,7 +37,7 @@ public class MessageService {
         this.userRepository = userRepository;
     }
 
-    public SocketResponse<PrivateMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, UUID recipientUUID)
+    public SocketResponse<PrivateMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, UUID recipientUUID)
     {
         try
         {
@@ -62,7 +62,7 @@ public class MessageService {
         }
     }
 
-    public SocketResponse<PrivateMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    public SocketResponse<PrivateMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
     {
         try
         {
@@ -89,7 +89,7 @@ public class MessageService {
         }
     }
 
-    public SocketResponse<PrivateMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, Message messageReceived, int conversationId)
+    public SocketResponse<PrivateMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
     {
         try
         {
