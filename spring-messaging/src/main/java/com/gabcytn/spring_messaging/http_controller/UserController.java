@@ -2,6 +2,7 @@ package com.gabcytn.spring_messaging.http_controller;
 
 import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<User>> searchByUsername (@RequestParam(value = "username") String username) {
-        return userService.searchByUsername(username);
+    public ResponseEntity<List<User>> searchByUsername (@RequestParam(value = "username") String username, HttpServletRequest request) {
+        return userService.searchByUsername(request, username);
     }
 }

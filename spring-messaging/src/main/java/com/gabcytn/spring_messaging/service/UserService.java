@@ -3,6 +3,7 @@ package com.gabcytn.spring_messaging.service;
 import com.gabcytn.spring_messaging.model.UserPrincipal;
 import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -32,9 +34,10 @@ public class UserService implements UserDetailsService {
         throw new UsernameNotFoundException("User not found");
     }
 
-    public ResponseEntity<List<User>> searchByUsername (String username) {
+    public ResponseEntity<List<User>> searchByUsername (HttpServletRequest request, String username) {
         try {
-            final List<User> users = userRepository.findByUsernameContainingIgnoreCase(username);
+            final UUID requesterId = UUID.fromString((String) request.getSession().getAttribute("uuid"));
+            final List<User> users = userRepository.findByUsernameContainingIgnoreCase(requesterId, username);
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error searching for users");
