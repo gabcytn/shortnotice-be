@@ -3,7 +3,6 @@ package com.gabcytn.spring_messaging.repository;
 import com.gabcytn.spring_messaging.model.PrivateMessage;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
