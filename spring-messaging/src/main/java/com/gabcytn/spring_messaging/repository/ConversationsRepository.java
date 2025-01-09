@@ -61,7 +61,7 @@ public class ConversationsRepository {
                     AND
                     cm2.user_id = ?
                 """;
-        final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("count") : 0;
+        final ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("conversation_id") : 0;
         final Object result = jdbcTemplate.query(sqlQuery, extractor, user1, user2);
         return result != null ? (int) result : 0;
     }
