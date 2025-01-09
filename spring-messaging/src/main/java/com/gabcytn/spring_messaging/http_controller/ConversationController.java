@@ -23,7 +23,12 @@ public class ConversationController {
 
     @GetMapping("/list")
     public ResponseEntity<List<Conversation>> getConversationsList (HttpServletRequest request) {
-        return conversationService.getConversationList(request);
+        return conversationService.getConversationList(request, false);
+    }
+
+    @GetMapping("/request/list")
+    public ResponseEntity<List<Conversation>> getConversationRequestsList (HttpServletRequest request) {
+        return conversationService.getConversationList(request, true);
     }
 
     @GetMapping("/id/{uuid}")

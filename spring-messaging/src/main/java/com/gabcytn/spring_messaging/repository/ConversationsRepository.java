@@ -81,7 +81,7 @@ public class ConversationsRepository {
         return result != null && (int) result > 0;
     }
 
-    public List<Conversation> findByIdAndRequestFalse (UUID requesterId) {
+    public List<Conversation> findByIdAndRequestTrueOrFalse(UUID requesterId, boolean isRequest) {
         final String sqlQuery = """
                 SELECT
                 	cm2.conversation_id,
@@ -111,7 +111,7 @@ public class ConversationsRepository {
                 	AND
                 	cm2.user_id <> ?
                 	AND
-                	conversations.request = FALSE
+                	conversations.request = ?
                 ORDER BY
                 	messages.sent_at DESC;
                 """;
@@ -123,6 +123,6 @@ public class ConversationsRepository {
 
             return new Conversation(id, username, message, timestamp);
         };
-        return jdbcTemplate.query(sqlQuery, conversationRowMapper, requesterId, requesterId);
+        return jdbcTemplate.query(sqlQuery, conversationRowMapper, requesterId, requesterId, isRequest);
     }
 }

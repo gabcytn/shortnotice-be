@@ -18,10 +18,10 @@ public class ConversationService {
         this.conversationsRepository = conversationsRepository;
     }
 
-    public ResponseEntity<List<Conversation>> getConversationList (HttpServletRequest request) {
+    public ResponseEntity<List<Conversation>> getConversationList (HttpServletRequest request, boolean isRequest) {
         try {
             final UUID requesterId = UUID.fromString((String) request.getSession().getAttribute("uuid"));
-            final List<Conversation> conversations = conversationsRepository.findByIdAndRequestFalse(requesterId);
+            final List<Conversation> conversations = conversationsRepository.findByIdAndRequestTrueOrFalse(requesterId, isRequest);
 
             return new ResponseEntity<>(conversations, HttpStatus.OK);
         } catch (Exception e) {
