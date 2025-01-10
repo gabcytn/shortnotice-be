@@ -98,10 +98,12 @@ const Register = () => {
         />
         <View style={{ flexDirection: "row", marginTop: 8 }}>
           <Text style={styles.haveAnAccount}>Already have an account? </Text>
-          <Pressable>
-            <Link href={"/auth"} style={styles.signIn}>
-              Sign in.
-            </Link>
+          <Pressable
+            onPress={() => {
+              router.back();
+            }}
+          >
+            <Text style={styles.signIn}>Sign in.</Text>
           </Pressable>
         </View>
       </SafeAreaView>
