@@ -59,7 +59,7 @@ const Register = () => {
           Register to{" "}
           <Text style={{ color: Colors.mainColor }}>ShortNotice</Text>
         </Text>
-        <Text style={styles.subTitle}>Start tracking your money</Text>
+        <Text style={styles.subTitle}>Notified in an instant</Text>
         <InputText
           placeholder="Username"
           isSecure={false}
