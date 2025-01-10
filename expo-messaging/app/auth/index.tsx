@@ -15,6 +15,7 @@ import InputText from "@/components/InputText";
 import Button from "@/components/Button";
 import { Link, router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { login } from "../service/auth";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -57,7 +58,9 @@ const Login = () => {
         <Button
           title="Sign In"
           onPress={() => {
-            console.log("sign in");
+            setIsLoading(true);
+            login(username, password);
+            setIsLoading(false);
           }}
           styles={styles}
           opacity={0.7}
