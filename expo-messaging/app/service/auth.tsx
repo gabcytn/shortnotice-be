@@ -64,3 +64,21 @@ function getRequestObject(username: string, password: string) {
     }),
   };
 }
+
+export async function logout() {
+  try {
+    const res = await fetch(`${SERVER_URL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (!res.ok) throw new Error(`Error status code of ${res.status}`);
+    AsyncStorage.removeItem("isLoggedIn");
+    router.replace("/auth");
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      console.error(e.message);
+      console.error("Error logging out");
+    }
+  }
+}
