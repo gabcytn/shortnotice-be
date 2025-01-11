@@ -10,17 +10,7 @@ export async function login(username: string, password: string) {
     return;
   }
 
-  const requestObject = {
-    method: "POST",
-    credentials: "include" as RequestCredentials,
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      username: username,
-      password: password,
-    }),
-  };
+  const requestObject = getRequestObject(username, password);
 
   try {
     const res = await fetch(`${SERVER_URL}/login`, requestObject);
@@ -32,4 +22,45 @@ export async function login(username: string, password: string) {
       Alert.alert(e.message);
     }
   }
+}
+
+export async function register(
+  username: string,
+  password: string,
+  conPass: string,
+) {
+  if ([username, password, conPass].includes("")) {
+    Alert.alert("Incomplete fields");
+    return;
+  }
+  if (password !== conPass) {
+    Alert.alert("Passwords do not match");
+    return;
+  }
+
+  const requestObject = getRequestObject(username, password);
+
+  try {
+    const res = await fetch(`${SERVER_URL}/register`, requestObject);
+    if (!res.ok) throw new Error(`Error status code of ${res.status}`);
+    router.replace("/auth");
+  } catch (e: unknown) {
+    if (e instanceof Error) {
+      Alert.alert(e.message);
+    }
+  }
+}
+
+function getRequestObject(username: string, password: string) {
+  return {
+    method: "POST",
+    credentials: "include" as RequestCredentials,
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      username: username,
+      password: password,
+    }),
+  };
 }
