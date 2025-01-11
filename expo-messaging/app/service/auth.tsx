@@ -15,7 +15,7 @@ export async function login(username: string, password: string) {
   try {
     const res = await fetch(`${SERVER_URL}/login`, requestObject);
     if (!res.ok) throw new Error(`Error status code of ${res.status}`);
-    AsyncStorage.setItem("isLoggedIn", "true");
+    await AsyncStorage.setItem("isLoggedIn", "true");
     router.replace("/home");
   } catch (e: unknown) {
     if (e instanceof Error) {
@@ -73,7 +73,7 @@ export async function logout() {
     });
 
     if (!res.ok) throw new Error(`Error status code of ${res.status}`);
-    AsyncStorage.removeItem("isLoggedIn");
+    await AsyncStorage.removeItem("isLoggedIn");
     router.replace("/auth");
   } catch (e: unknown) {
     if (e instanceof Error) {
