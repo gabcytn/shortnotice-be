@@ -9,12 +9,13 @@ import {
   Pressable,
   View,
 } from "react-native";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
 import Button from "@/components/Button";
 import InputText from "@/components/InputText";
+import { register } from "../service/auth";
 
 const Register = () => {
   const [username, setUsername] = useState("");
@@ -23,6 +24,13 @@ const Register = () => {
   const [isUsernameError, setIsUsernameError] = useState(false);
   const [isPasswordError, setIsPasswordError] = useState(false);
   const [isConfirmPasswordError, setIsConfirmPasswordError] = useState(false);
+  const handleRegister = () => {
+    if (
+      [isUsernameError, isPasswordError, isConfirmPasswordError].includes(true)
+    )
+      return;
+    register(username, password, confirmPassword);
+  };
   useEffect(() => {
     const checkLoginStatus = async () => {
       const isLoggedIn = await AsyncStorage.getItem("isLoggedIn");
@@ -91,9 +99,7 @@ const Register = () => {
           title="Create"
           styles={styles}
           opacity={0.7}
-          onPress={() => {
-            console.log("clicked register");
-          }}
+          onPress={handleRegister}
           disabled={false}
         />
         <View style={{ flexDirection: "row", marginTop: 8 }}>
