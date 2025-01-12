@@ -1,22 +1,13 @@
 import { Button, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 import { logout } from "../service/auth";
+import { checkAuthState } from "../service/home";
 
 const Home = () => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    const checkAuthState = async () => {
-      const authState = await AsyncStorage.getItem("isLoggedIn");
-      if (!authState) {
-        router.replace("/auth");
-      }
-    };
-    checkAuthState();
-    setIsLoading(false);
+    checkAuthState(setIsLoading);
   }, []);
 
   if (isLoading) return <Text>LOADING...</Text>;
