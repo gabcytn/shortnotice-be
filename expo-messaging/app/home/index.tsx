@@ -12,7 +12,7 @@ const Home = () => {
     const effect = async () => {
       const loggedIn = await isLoggedIn();
       if (!loggedIn) return;
-      startup();
+      await startup();
     };
 
     effect();
