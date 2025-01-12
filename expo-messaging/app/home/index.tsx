@@ -1,13 +1,21 @@
 import { Button, StyleSheet, Text, View } from "react-native";
 import React, { useEffect, useState } from "react";
 import { logout } from "../service/auth";
-import { checkAuthState } from "../service/home";
+import { isLoggedIn, fetchCredentials } from "../service/home";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthState(setIsLoading);
+    setIsLoading(true);
+    const effect = async () => {
+      const loggedIn = await isLoggedIn();
+      if (!loggedIn) return;
+      fetchCredentials();
+    };
+
+    effect();
+    setIsLoading(false);
   }, []);
 
   if (isLoading) return <Text>LOADING...</Text>;

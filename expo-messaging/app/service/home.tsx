@@ -3,13 +3,14 @@ import { router } from "expo-router";
 
 const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL;
 
-export async function checkAuthState(setIsLoading: (v: boolean) => void) {
-  setIsLoading(true);
+export async function isLoggedIn(): Promise<boolean> {
   const authState = await AsyncStorage.getItem("isLoggedIn");
   if (!authState) {
     router.replace("/auth");
+    return false;
   }
-  setIsLoading(false);
+
+  return true;
 }
 
 export async function fetchCredentials() {
