@@ -1,3 +1,4 @@
+import { Colors } from "@/constants/Colors";
 import { Stack } from "expo-router";
 import React from "react";
 
@@ -6,8 +7,8 @@ export default function AuthLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        statusBarTranslucent: true,
-        statusBarStyle: "dark",
+        statusBarBackgroundColor: Colors.background,
+        statusBarStyle: "light",
       }}
     >
       <Stack.Screen name="index" />
