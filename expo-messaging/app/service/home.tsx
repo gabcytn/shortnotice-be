@@ -39,8 +39,6 @@ export async function fetchCredentials() {
     const data = await res.json();
     await AsyncStorage.setItem("id", data.id);
     await AsyncStorage.setItem("username", data.username);
-
-    await fetchConversations();
   } catch (e: unknown) {
     if (e instanceof Error) {
       console.error(e.message);
