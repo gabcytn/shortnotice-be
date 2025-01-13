@@ -83,11 +83,20 @@ public class ConversationsRepository {
 
     public List<Conversation> findByIdAndRequestTrueOrFalse(UUID requesterId, boolean isRequest) {
         final String sqlQuery = """
+                WITH RecentMessages AS (
+                    SELECT
+                        messages.conversation_id,
+                        messages.message,
+                        messages.sent_at,
+                        ROW_NUMBER() OVER (PARTITION BY messages.conversation_id ORDER BY messages.sent_at DESC) AS rn
+                    FROM
+                        messages
+                )
                 SELECT
-                	cm2.conversation_id,
+                	DISTINCT(cm1.conversation_id),
                 	users.username,
-                	messages.message,
-                	messages.sent_at
+                	rm.message,
+                	rm.sent_at
                 FROM
                 	conversation_members AS cm1
                 JOIN
@@ -99,9 +108,9 @@ public class ConversationsRepository {
                 ON
                 	cm2.user_id = users.id
                 JOIN
-                	messages
+                	RecentMessages AS rm
                 ON
-                	cm1.conversation_id = messages.conversation_id
+                	cm1.conversation_id = rm.conversation_id
                 JOIN
                 	conversations
                 ON
@@ -112,8 +121,10 @@ public class ConversationsRepository {
                 	cm2.user_id <> ?
                 	AND
                 	conversations.request = ?
+                    AND
+                    rm.rn = 1
                 ORDER BY
-                	messages.sent_at DESC;
+                	rm.sent_at DESC;
                 """;
         final RowMapper<Conversation> conversationRowMapper = (rs, rowNum) -> {
             final int id = rs.getInt("conversation_id");
