@@ -7,7 +7,11 @@ export async function startup(setLoading: (v: boolean) => void) {
   try {
     setLoading(true);
     const loggedIn = await isLoggedIn();
-    if (!loggedIn) return;
+    if (!loggedIn) {
+      await AsyncStorage.clear();
+      router.replace("/auth");
+      return;
+    }
     await fetchCredentials();
     await fetchConversations();
   } catch (e: unknown) {
@@ -18,9 +22,14 @@ export async function startup(setLoading: (v: boolean) => void) {
 }
 
 export async function isLoggedIn(): Promise<boolean> {
-  const authState = await AsyncStorage.getItem("isLoggedIn");
-  if (!authState) {
-    router.replace("/auth");
+  const localAuthStatus = await AsyncStorage.getItem("isLoggedIn");
+  const res = await fetch(`${SERVER_URL}/auth/status`, {
+    method: "GET",
+    credentials: "include",
+  });
+  const text = await res.text();
+  const serverAuthStatus = text === "true";
+  if (!localAuthStatus || !serverAuthStatus) {
     return false;
   }
 
