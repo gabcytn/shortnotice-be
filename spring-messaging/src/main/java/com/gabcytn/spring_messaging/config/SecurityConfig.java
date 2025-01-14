@@ -33,7 +33,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager () {
+    public AuthenticationManager authenticationManager() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userDetailsService);
@@ -42,46 +42,41 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain (HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
         httpSecurity.cors(httpSecurityCorsConfigurer -> {
             httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource());
         });
         httpSecurity.authorizeHttpRequests(requests -> requests
-                .requestMatchers("/login", "/register").permitAll()
-                .anyRequest().authenticated()
-        );
-        httpSecurity.sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-        );
+                .requestMatchers("/login", "/register", "/auth/status").permitAll()
+                .anyRequest().authenticated());
+        httpSecurity.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
         httpSecurity.logout(logoutCustomizer -> logoutCustomizer
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")
                 .invalidateHttpSession(true)
                 .logoutSuccessHandler((request, response, authentication) -> {
                     response.setStatus(200);
-                })
-        );
+                }));
         httpSecurity.securityContext(securityContext -> {
             securityContext.securityContextRepository(new DelegatingSecurityContextRepository(
                     new RequestAttributeSecurityContextRepository(),
-                    new HttpSessionSecurityContextRepository()
-            )).requireExplicitSave(true);
+                    new HttpSessionSecurityContextRepository())).requireExplicitSave(true);
         });
         return httpSecurity.build();
     }
 
     @Bean
-    public SecurityContextRepository securityContextRepository () {
+    public SecurityContextRepository securityContextRepository() {
         return new HttpSessionSecurityContextRepository();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder () {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
     }
 
-    private UrlBasedCorsConfigurationSource corsConfigurationSource () {
+    private UrlBasedCorsConfigurationSource corsConfigurationSource() {
         Dotenv dotenv = Dotenv.load();
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowCredentials(true);

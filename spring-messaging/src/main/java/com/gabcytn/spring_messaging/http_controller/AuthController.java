@@ -4,6 +4,8 @@ import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,5 +46,11 @@ public class AuthController {
         response.put("id", id);
         response.put("username", username);
         return response;
+    }
+
+    @GetMapping("/auth/status")
+    public Boolean getAuthStatus(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        return session != null && session.getAttribute("uuid") != null;
     }
 }
