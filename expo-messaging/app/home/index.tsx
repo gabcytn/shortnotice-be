@@ -10,9 +10,11 @@ import { logout } from "../service/auth";
 import { startup } from "../service/home";
 import { Colors } from "@/constants/Colors";
 import Button from "@/components/Button";
+import InputBox from "@/components/InputText";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function effect() {
@@ -25,6 +27,13 @@ const Home = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <InputBox
+        placeholder="Search"
+        isSecure={false}
+        value={search}
+        setValue={setSearch}
+        styles={styles}
+      />
       <Button
         title="Logout"
         onPress={logout}
@@ -44,6 +53,14 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     paddingHorizontal: 10,
     backgroundColor: Colors.background,
+  },
+  inputContainer: {
+    borderWidth: 1,
+    borderRadius: 5,
+    width: 250,
+    paddingHorizontal: 5,
+    paddingVertical: 3,
+    marginVertical: 5,
   },
   pressable: {
     backgroundColor: Colors.mainColor,
