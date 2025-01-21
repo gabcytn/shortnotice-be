@@ -18,7 +18,7 @@ public class ConversationsRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Integer create () {
+    public Integer create() {
         final String sqlQuery = """
                 INSERT INTO conversations (request)
                 VALUES (true)
@@ -29,7 +29,7 @@ public class ConversationsRepository {
         return jdbcTemplate.queryForObject(sqlQuery, idRowMapper);
     }
 
-    public void setRequestFalseById (int id) {
+    public void setRequestFalseById(int id) {
         final String sqlQuery = """
                 UPDATE conversations
                 SET request = false
@@ -66,7 +66,7 @@ public class ConversationsRepository {
         return result != null ? (int) result : 0;
     }
 
-    public Boolean existsById (int id) {
+    public Boolean existsById(int id) {
         final String sqlQuery = """
                 SELECT
                     COUNT(id) AS id
@@ -95,6 +95,7 @@ public class ConversationsRepository {
                 SELECT
                 	DISTINCT(cm1.conversation_id),
                 	users.username,
+                        users.profile_pic
                 	rm.message,
                 	rm.sent_at
                 FROM
@@ -130,9 +131,10 @@ public class ConversationsRepository {
             final int id = rs.getInt("conversation_id");
             final String username = rs.getString("username");
             final String message = rs.getString("message");
+            final String avatar = rs.getString("profile_pic");
             final Timestamp timestamp = rs.getTimestamp("sent_at");
 
-            return new Conversation(id, username, message, timestamp);
+            return new Conversation(id, username, message, avatar, timestamp);
         };
         return jdbcTemplate.query(sqlQuery, conversationRowMapper, requesterId, requesterId, isRequest);
     }
