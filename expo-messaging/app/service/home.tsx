@@ -3,7 +3,10 @@ import { router } from "expo-router";
 
 const SERVER_URL = process.env.EXPO_PUBLIC_SERVER_URL;
 
-export async function startup(setLoading: (v: boolean) => void) {
+export async function startup(
+  setLoading: (v: boolean) => void,
+  setConversations: (v: []) => void,
+) {
   try {
     setLoading(true);
     const loggedIn = await isLoggedIn();
@@ -13,7 +16,8 @@ export async function startup(setLoading: (v: boolean) => void) {
       return;
     }
     await fetchCredentials();
-    await fetchConversations();
+    const conversations = await fetchConversations();
+    setConversations(conversations);
   } catch (e: unknown) {
     if (e instanceof Error) console.error(e.message);
   } finally {
@@ -65,7 +69,7 @@ export async function fetchConversations() {
     if (!res.ok) throw new Error(`Error status code of ${res.status}`);
 
     const data = await res.json();
-    console.log(data);
+    return data;
   } catch (e: unknown) {
     if (e instanceof Error) {
       console.error(e.message);
