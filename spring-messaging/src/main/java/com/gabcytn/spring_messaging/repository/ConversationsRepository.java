@@ -95,7 +95,7 @@ public class ConversationsRepository {
                 SELECT
                 	DISTINCT(cm1.conversation_id),
                 	users.username,
-                        users.profile_pic
+                        users.profile_pic,
                 	rm.message,
                 	rm.sent_at
                 FROM
