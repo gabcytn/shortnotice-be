@@ -134,7 +134,7 @@ public class ConversationsRepository {
             final String avatar = rs.getString("profile_pic");
             final Timestamp timestamp = rs.getTimestamp("sent_at");
 
-            return new Conversation(id, username, message, avatar, timestamp);
+            return new Conversation(id, username, avatar, message, timestamp);
         };
         return jdbcTemplate.query(sqlQuery, conversationRowMapper, requesterId, requesterId, isRequest);
     }
