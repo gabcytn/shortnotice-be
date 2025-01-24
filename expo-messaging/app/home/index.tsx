@@ -1,10 +1,12 @@
 import {
+  Image,
   Keyboard,
   Platform,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -15,6 +17,7 @@ import { Colors } from "@/constants/Colors";
 import Button from "@/components/Button";
 import InputBox from "@/components/InputText";
 import { Conversation } from "../types/home";
+import { Link, router } from "expo-router";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -40,13 +43,32 @@ const Home = () => {
           setValue={setSearch}
           styles={styles}
         />
-        {conversations.map((conversation) => {
+        {conversations?.map((conversation) => {
           return (
-            <View key={conversation.id}>
-              <Text>{conversation.senderUsername}</Text>
-              <Text>{conversation.message}</Text>
-              <Text>{conversation.sentAt}</Text>
-            </View>
+            <Link
+              key={conversation.id}
+              style={styles.conversation}
+              href={{
+                pathname: "./conversation",
+                params: {
+                  id: conversation.id,
+                  avatar: conversation.avatar,
+                  username: conversation.senderUsername,
+                },
+              }}
+              push={true}
+              relativeToDirectory={true}
+            >
+              <Image
+                source={{ uri: conversation.avatar }}
+                style={styles.avatar}
+              />
+              <View>
+                <Text style={styles.text}>{conversation.senderUsername}</Text>
+                <Text style={styles.text}>{conversation.message}</Text>
+                <Text style={styles.text}>{conversation.sentAt}</Text>
+              </View>
+            </Link>
           );
         })}
         <Button
@@ -70,6 +92,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: Colors.background,
   },
+  text: {
+    fontFamily: "Poppins",
+    fontSize: 12,
+    color: Colors.white,
+  },
   inputContainer: {
     borderWidth: 1,
     borderRadius: 5,
@@ -91,5 +118,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textTransform: "uppercase",
     color: Colors.white,
+  },
+  avatar: {
+    width: 75,
+    height: 75,
+    borderRadius: 100,
+  },
+  conversation: {
+    paddingHorizontal: 5,
+    paddingVertical: 8,
+    flexDirection: "row",
+    gap: 10,
   },
 });
