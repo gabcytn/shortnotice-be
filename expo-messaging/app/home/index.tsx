@@ -6,7 +6,6 @@ import {
   StatusBar,
   StyleSheet,
   Text,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -17,7 +16,7 @@ import { Colors } from "@/constants/Colors";
 import Button from "@/components/Button";
 import InputBox from "@/components/InputText";
 import { Conversation } from "../types/home";
-import { Link, router } from "expo-router";
+import { Link } from "expo-router";
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -51,9 +50,9 @@ const Home = () => {
               href={{
                 pathname: "./conversation",
                 params: {
-                  id: conversation.id,
-                  avatar: conversation.avatar,
-                  username: conversation.senderUsername,
+                  convoId: conversation.id,
+                  convoAvatar: conversation.avatar,
+                  convoUsername: conversation.senderUsername,
                 },
               }}
               push={true}
