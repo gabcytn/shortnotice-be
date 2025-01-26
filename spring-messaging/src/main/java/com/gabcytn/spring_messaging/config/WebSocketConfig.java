@@ -21,7 +21,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         final Dotenv dotenv = Dotenv.load();
         registry
                 .addEndpoint("/short-notice")
-                .setAllowedOrigins(dotenv.get("FRONTEND_URL"))
-                .addInterceptors(new HttpSessionHandshakeInterceptor());
+                .addInterceptors(new HttpSessionHandshakeInterceptor())
+                .withSockJS();
     }
 }
