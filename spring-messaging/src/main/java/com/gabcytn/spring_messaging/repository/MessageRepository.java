@@ -16,7 +16,7 @@ public class MessageRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save (int conversationId, UUID sender, String message) {
+    public void save(int conversationId, UUID sender, String message) {
         final String sqlQuery = """
                 INSERT INTO messages (conversation_id, sender_id, message)
                 VALUES (?, ?, ?)
@@ -24,10 +24,10 @@ public class MessageRepository {
         jdbcTemplate.update(sqlQuery, conversationId, sender, message);
     }
 
-    public List<PrivateMessage> findAllByConversationId (int conversationId) {
+    public List<PrivateMessage> findAllByConversationId(int conversationId) {
         final String sqlQuery = """
                 SELECT
-                    conversation_id, users.username AS sender, message, sent_at
+                    conversation_id, users.username AS sender, message, messages.id AS message_id, sent_at
                 FROM
                     messages
                 JOIN
@@ -38,12 +38,12 @@ public class MessageRepository {
                     conversation_id = ?
                 """;
         final RowMapper<PrivateMessage> privateMessageRowMapper = (rs, rowNum) -> new PrivateMessage(
-            rs.getInt("conversation_id"),
-            rs.getString("sender"),
-            rs.getString("message"),
-            false,
-            rs.getTimestamp("sent_at")
-        );
+                rs.getInt("conversation_id"),
+                rs.getString("sender"),
+                rs.getString("message"),
+                rs.getInt("message_id"),
+                false,
+                rs.getTimestamp("sent_at"));
 
         return jdbcTemplate.query(sqlQuery, privateMessageRowMapper, conversationId);
     }

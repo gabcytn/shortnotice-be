@@ -6,14 +6,18 @@ public class PrivateMessage {
     private int conversationId;
     private String sender;
     private String message;
+    private int messageId;
     private boolean isRequest;
     private Timestamp sentAt;
 
-    public PrivateMessage() {}
+    public PrivateMessage() {
+    }
 
-    public PrivateMessage(int conversationId, String sender, String message,  boolean isRequest, Timestamp sentAt) {
+    public PrivateMessage(int conversationId, String sender, String message, int messageId, boolean isRequest,
+            Timestamp sentAt) {
         this.sender = sender;
         this.message = message;
+        this.messageId = messageId;
         this.conversationId = conversationId;
         this.isRequest = isRequest;
         this.sentAt = sentAt;
@@ -33,6 +37,14 @@ public class PrivateMessage {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public int getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(int messageId) {
+        this.messageId = messageId;
     }
 
     public Timestamp getSentAt() {
@@ -64,6 +76,7 @@ public class PrivateMessage {
         return "PrivateMessage{" +
                 "sender='" + sender + '\'' +
                 ", message='" + message + '\'' +
+                ", messageId='" + messageId + '\'' +
                 ", conversationId=" + conversationId +
                 ", isRequest=" + isRequest +
                 ", sentAt=" + sentAt +
