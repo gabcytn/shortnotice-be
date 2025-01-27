@@ -1,4 +1,5 @@
 import {
+  Alert,
   Image,
   Keyboard,
   Platform,
@@ -17,6 +18,18 @@ import Button from "@/components/Button";
 import InputBox from "@/components/InputText";
 import { Conversation } from "../types/home";
 import { Link } from "expo-router";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const SOCKET_URL = `${process.env.EXPO_PUBLIC_SERVER_URL}/short-notice`;
+
+export const client = new Client({
+  webSocketFactory: () => new SockJS(SOCKET_URL),
+  debug: (str) => {
+    console.log("STOMP Debug:", str);
+  },
+});
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -26,8 +39,20 @@ const Home = () => {
   useEffect(() => {
     async function effect() {
       await startup(setIsLoading, setConversations);
+      const username = await AsyncStorage.getItem("username");
+      client.onConnect = () => {
+        client.subscribe(`/topic/private/${username}`, (message) => {
+          const socketResponse = JSON.parse(message.body);
+          console.log(socketResponse.body.message);
+          Alert.alert("MESSAGE RECEIVED: ", socketResponse.body.message);
+        });
+      };
+      client.activate();
     }
     effect();
+    return () => {
+      client.deactivate();
+    };
   }, []);
 
   if (isLoading) return <Text>LOADING...</Text>;
