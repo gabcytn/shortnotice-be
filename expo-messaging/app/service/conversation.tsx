@@ -9,7 +9,9 @@ export async function fetchMessages(
   avatar: string,
 ): Promise<IMessage[] | undefined> {
   try {
-    const res = await fetch(`${SERVER_URL}/message/history/${convoID}`);
+    const res = await fetch(`${SERVER_URL}/message/history/${convoID}`, {
+      credentials: "include",
+    });
     if (res.status === 403) {
       await AsyncStorage.clear();
       router.replace("/auth");

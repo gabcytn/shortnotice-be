@@ -16,12 +16,13 @@ public class MessageRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void save(int conversationId, UUID sender, String message) {
+    public Integer save(int conversationId, UUID sender, String message) {
         final String sqlQuery = """
                 INSERT INTO messages (conversation_id, sender_id, message)
                 VALUES (?, ?, ?)
+                RETURNING id
                 """;
-        jdbcTemplate.update(sqlQuery, conversationId, sender, message);
+        return jdbcTemplate.queryForObject(sqlQuery, Integer.class, conversationId, sender, message);
     }
 
     public List<PrivateMessage> findAllByConversationId(int conversationId) {
@@ -36,6 +37,8 @@ public class MessageRepository {
                     users.id = messages.sender_id
                 WHERE
                     conversation_id = ?
+                ORDER BY
+                    messages.sent_at DESC
                 """;
         final RowMapper<PrivateMessage> privateMessageRowMapper = (rs, rowNum) -> new PrivateMessage(
                 rs.getInt("conversation_id"),

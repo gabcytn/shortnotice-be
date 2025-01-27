@@ -69,7 +69,7 @@ public class ConversationsRepository {
     public Boolean existsById(int id) {
         final String sqlQuery = """
                 SELECT
-                    COUNT(id) AS id
+                    COUNT(id) AS count
                 FROM
                     conversations
                 WHERE
