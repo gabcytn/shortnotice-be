@@ -1,5 +1,6 @@
 import {
   Alert,
+  FlatList,
   Image,
   Keyboard,
   Platform,
@@ -21,6 +22,7 @@ import { Link } from "expo-router";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { IncomingMessage } from "../types/conversation";
 
 const SOCKET_URL = `${process.env.EXPO_PUBLIC_SERVER_URL}/short-notice`;
 
@@ -43,8 +45,9 @@ const Home = () => {
       client.onConnect = () => {
         client.subscribe(`/topic/private/${username}`, (message) => {
           const socketResponse = JSON.parse(message.body);
-          console.log(socketResponse.body.message);
-          Alert.alert("MESSAGE RECEIVED: ", socketResponse.body.message);
+          const body = socketResponse.body as IncomingMessage;
+          console.log(body.message);
+          Alert.alert("MESSAGE RECEIVED: ", body.message);
         });
       };
       client.activate();
@@ -67,34 +70,37 @@ const Home = () => {
           setValue={setSearch}
           styles={styles}
         />
-        {conversations?.map((conversation) => {
-          return (
+        <FlatList
+          data={conversations}
+          renderItem={(conversation) => (
             <Link
-              key={conversation.id}
               style={styles.conversation}
               href={{
                 pathname: "./conversation",
                 params: {
-                  convoId: conversation.id,
-                  convoAvatar: conversation.avatar,
-                  convoUsername: conversation.senderUsername,
+                  convoId: conversation.item.id,
+                  convoAvatar: conversation.item.avatar,
+                  convoUsername: conversation.item.senderUsername,
                 },
               }}
               push={true}
               relativeToDirectory={true}
             >
               <Image
-                source={{ uri: conversation.avatar }}
+                source={{ uri: conversation.item.avatar }}
                 style={styles.avatar}
               />
               <View>
-                <Text style={styles.text}>{conversation.senderUsername}</Text>
-                <Text style={styles.text}>{conversation.message}</Text>
-                <Text style={styles.text}>{conversation.sentAt}</Text>
+                <Text style={styles.text}>
+                  {conversation.item.senderUsername}
+                </Text>
+                <Text style={styles.text}>{conversation.item.message}</Text>
+                <Text style={styles.text}>{conversation.item.sentAt}</Text>
               </View>
             </Link>
-          );
-        })}
+          )}
+          keyExtractor={(conversation) => conversation.id.toString()}
+        />
         <Button
           title="Logout"
           onPress={logout}
