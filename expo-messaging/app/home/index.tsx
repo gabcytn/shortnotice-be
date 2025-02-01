@@ -4,11 +4,10 @@ import {
   Image,
   Keyboard,
   Platform,
-  ScrollView,
+  Pressable,
   StatusBar,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -61,55 +60,53 @@ const Home = () => {
   if (isLoading) return <Text>LOADING...</Text>;
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ScrollView style={styles.container}>
-        <InputBox
-          placeholder="Search"
-          isSecure={false}
-          value={search}
-          setValue={setSearch}
-          styles={styles}
-        />
-        <FlatList
-          data={conversations}
-          renderItem={(conversation) => (
-            <Link
-              style={styles.conversation}
-              href={{
-                pathname: "./conversation",
-                params: {
-                  convoId: conversation.item.id,
-                  convoAvatar: conversation.item.avatar,
-                  convoUsername: conversation.item.senderUsername,
-                },
-              }}
-              push={true}
-              relativeToDirectory={true}
-            >
-              <Image
-                source={{ uri: conversation.item.avatar }}
-                style={styles.avatar}
-              />
-              <View>
-                <Text style={styles.text}>
-                  {conversation.item.senderUsername}
-                </Text>
-                <Text style={styles.text}>{conversation.item.message}</Text>
-                <Text style={styles.text}>{conversation.item.sentAt}</Text>
-              </View>
-            </Link>
-          )}
-          keyExtractor={(conversation) => conversation.id.toString()}
-        />
-        <Button
-          title="Logout"
-          onPress={logout}
-          styles={styles}
-          disabled={isLoading}
-          opacity={0.7}
-        />
-      </ScrollView>
-    </TouchableWithoutFeedback>
+    <Pressable onPress={Keyboard.dismiss} style={styles.container}>
+      <InputBox
+        placeholder="Search"
+        isSecure={false}
+        value={search}
+        setValue={setSearch}
+        styles={styles}
+      />
+      <FlatList
+        data={conversations}
+        renderItem={(conversation) => (
+          <Link
+            style={styles.conversation}
+            href={{
+              pathname: "./conversation",
+              params: {
+                convoId: conversation.item.id,
+                convoAvatar: conversation.item.avatar,
+                convoUsername: conversation.item.senderUsername,
+              },
+            }}
+            push={true}
+            relativeToDirectory={true}
+          >
+            <Image
+              source={{ uri: conversation.item.avatar }}
+              style={styles.avatar}
+            />
+            <View>
+              <Text style={styles.text}>
+                {conversation.item.senderUsername}
+              </Text>
+              <Text style={styles.text}>{conversation.item.message}</Text>
+              <Text style={styles.text}>{conversation.item.sentAt}</Text>
+            </View>
+          </Link>
+        )}
+        keyExtractor={(conversation) => conversation.id.toString()}
+      />
+      <Button
+        title="Logout"
+        onPress={logout}
+        styles={styles}
+        disabled={isLoading}
+        opacity={0.7}
+      />
+    </Pressable>
   );
 };
 
