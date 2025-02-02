@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "expo-messaging",
-    "slug": "expo-messaging",
+    "name": "short-notice",
+    "slug": "short-notice",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
