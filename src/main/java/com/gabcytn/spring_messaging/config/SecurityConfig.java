@@ -44,9 +44,6 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
-//        httpSecurity.cors(httpSecurityCorsConfigurer -> {
-//            httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource());
-//        });
         httpSecurity.authorizeHttpRequests(requests -> requests
                 .requestMatchers("/login", "/register", "/auth/status").permitAll()
                 .anyRequest().authenticated());
@@ -74,17 +71,5 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(12);
-    }
-
-    private UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        Dotenv dotenv = Dotenv.load();
-        CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
-        corsConfiguration.setAllowedHeaders(List.of("Content-Type"));
-//        corsConfiguration.setAllowedOrigins(List.of("http://192.168.68.104", "http://localhost:8080"));
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-        return urlBasedCorsConfigurationSource;
     }
 }
