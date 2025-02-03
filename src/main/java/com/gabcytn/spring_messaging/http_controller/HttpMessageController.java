@@ -23,4 +23,9 @@ public class HttpMessageController {
     public ResponseEntity<List<PrivateMessage>> getMessageHistory (@PathVariable int conversationId) {
         return messageService.getMessageHistory(conversationId);
     }
+
+    @GetMapping("/test")
+    public String hi () {
+        return "hi";
+    }
 }
