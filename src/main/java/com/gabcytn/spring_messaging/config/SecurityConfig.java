@@ -1,6 +1,5 @@
 package com.gabcytn.spring_messaging.config;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,10 +17,6 @@ import org.springframework.security.web.context.DelegatingSecurityContextReposit
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
