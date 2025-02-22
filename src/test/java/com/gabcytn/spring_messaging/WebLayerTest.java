@@ -22,6 +22,6 @@ public class WebLayerTest {
     @Test
     public void mustAuthenticateFirst () throws Exception{
         this.mockMvc.perform(get("/conversation/list")).andDo(print())
-                .andExpect(status().is(403));
+                .andExpect(status().isForbidden());
     }
 }
