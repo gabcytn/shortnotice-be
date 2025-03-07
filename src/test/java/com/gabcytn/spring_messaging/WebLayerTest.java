@@ -2,6 +2,7 @@ package com.gabcytn.spring_messaging;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabcytn.spring_messaging.model.User;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,8 +41,9 @@ public class WebLayerTest {
     public void login() throws Exception
     {
         User user = new User();
-        user.setUsername("user1");
-        user.setPassword("pass1");
+        Dotenv dotenv = Dotenv.load();
+        user.setUsername(dotenv.get("TEST_USERNAME"));
+        user.setPassword(dotenv.get("TEST_PASSWORD"));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String content = objectMapper.writeValueAsString(user);
