@@ -18,10 +18,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        final Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.load();
         registry
                 .addEndpoint("/short-notice")
-                .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .withSockJS();
+                .setAllowedOrigins(dotenv.get("FRONTEND_URL"))
+                .addInterceptors(new HttpSessionHandshakeInterceptor());
     }
 }
