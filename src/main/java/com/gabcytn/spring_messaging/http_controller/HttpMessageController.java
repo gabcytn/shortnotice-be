@@ -1,6 +1,6 @@
 package com.gabcytn.spring_messaging.http_controller;
 
-import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import com.gabcytn.spring_messaging.service.MessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +20,7 @@ public class HttpMessageController {
     }
 
     @GetMapping("/history/{conversationId}")
-    public ResponseEntity<List<PrivateMessage>> getMessageHistory (@PathVariable int conversationId) {
+    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (@PathVariable int conversationId) {
         return messageService.getMessageHistory(conversationId);
     }
 }

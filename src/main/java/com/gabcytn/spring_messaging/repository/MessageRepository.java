@@ -1,6 +1,6 @@
 package com.gabcytn.spring_messaging.repository;
 
-import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -25,7 +25,7 @@ public class MessageRepository {
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, conversationId, sender, message);
     }
 
-    public List<PrivateMessage> findAllByConversationId(int conversationId) {
+    public List<OutgoingMessage> findAllByConversationId(int conversationId) {
         final String sqlQuery = """
                 SELECT
                     conversation_id, users.username AS sender, message, messages.id AS message_id, sent_at
@@ -40,7 +40,7 @@ public class MessageRepository {
                 ORDER BY
                     messages.sent_at DESC
                 """;
-        final RowMapper<PrivateMessage> privateMessageRowMapper = (rs, rowNum) -> new PrivateMessage(
+        final RowMapper<OutgoingMessage> privateMessageRowMapper = (rs, rowNum) -> new OutgoingMessage(
                 rs.getInt("conversation_id"),
                 rs.getString("sender"),
                 rs.getString("message"),

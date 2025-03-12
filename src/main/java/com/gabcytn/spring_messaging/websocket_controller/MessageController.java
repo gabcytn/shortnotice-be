@@ -1,7 +1,7 @@
 package com.gabcytn.spring_messaging.websocket_controller;
 
 import com.gabcytn.spring_messaging.model.IncomingMessage;
-import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.service.MessageService;
 
@@ -24,13 +24,14 @@ public class MessageController {
         this.messageService = messageService;
     }
 
+    // send a message request (initializing of a conversation by one user) (may be multiple times)
     @MessageMapping("/request/{uuid}")
     public void privateMessageRequest(
             @DestinationVariable UUID uuid,
             IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final SocketResponse<PrivateMessage> messageToSend =
+        final SocketResponse<OutgoingMessage> messageToSend =
                 messageService.createMessageRequest(headerAccessor, messageReceived, uuid);
         messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }
@@ -41,7 +42,7 @@ public class MessageController {
             IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-         final SocketResponse<PrivateMessage> messageToSend =
+         final SocketResponse<OutgoingMessage> messageToSend =
                  messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
          messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }
@@ -52,7 +53,7 @@ public class MessageController {
             IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
-        final SocketResponse<PrivateMessage> messageToSend =
+        final SocketResponse<OutgoingMessage> messageToSend =
                 messageService.sendNormalMessage(headerAccessor, messageReceived, conversationId);
         messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }

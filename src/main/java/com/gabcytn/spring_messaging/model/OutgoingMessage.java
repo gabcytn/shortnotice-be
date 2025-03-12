@@ -3,7 +3,7 @@ package com.gabcytn.spring_messaging.model;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-public class PrivateMessage {
+public class OutgoingMessage {
     private int conversationId;
     private String sender;
     private UUID recipientId;
@@ -12,11 +12,11 @@ public class PrivateMessage {
     private boolean isRequest;
     private Timestamp sentAt;
 
-    public PrivateMessage() {
+    public OutgoingMessage() {
     }
 
-    public PrivateMessage(int conversationId, String sender, String message, int messageId, boolean isRequest,
-            Timestamp sentAt) {
+    public OutgoingMessage(int conversationId, String sender, String message, int messageId, boolean isRequest,
+                           Timestamp sentAt) {
         this.sender = sender;
         this.message = message;
         this.messageId = messageId;

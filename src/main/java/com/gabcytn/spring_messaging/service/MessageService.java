@@ -1,7 +1,7 @@
 package com.gabcytn.spring_messaging.service;
 
 import com.gabcytn.spring_messaging.model.IncomingMessage;
-import com.gabcytn.spring_messaging.model.PrivateMessage;
+import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.model.User;
 import com.gabcytn.spring_messaging.repository.BlocksRepository;
@@ -40,7 +40,7 @@ public class MessageService {
         this.validatorService = validatorService;
     }
 
-    public SocketResponse<PrivateMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, UUID recipientUUID)
+    public SocketResponse<OutgoingMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, UUID recipientUUID)
     {
         try
         {
@@ -61,11 +61,11 @@ public class MessageService {
         {
             System.err.println("Error creating message request");
             System.err.println(e.getMessage());
-            return new SocketResponse<>("ERROR", e.getMessage(), new PrivateMessage());
+            return new SocketResponse<>("ERROR", e.getMessage(), new OutgoingMessage());
         }
     }
 
-    public SocketResponse<PrivateMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
+    public SocketResponse<OutgoingMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
     {
         try
         {
@@ -81,18 +81,18 @@ public class MessageService {
 
             conversationsRepository.setRequestFalseById(conversationId);
             Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
-            return new SocketResponse<>("OK", "Accepting message request handled successfully", privateMessage);
+            final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
+            return new SocketResponse<>("OK", "Accepting message request handled successfully", outgoingMessage);
         }
         catch (Exception e)
         {
             System.err.println("Error accepting message request");
             System.err.println(e.getMessage());
-            return new SocketResponse<>("ERROR", e.getMessage(), new PrivateMessage());
+            return new SocketResponse<>("ERROR", e.getMessage(), new OutgoingMessage());
         }
     }
 
-    public SocketResponse<PrivateMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
+    public SocketResponse<OutgoingMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
     {
         try
         {
@@ -105,10 +105,10 @@ public class MessageService {
             validatorService.validateNormalMessage(senderUUID, recipientId, messageReceived);
 
             Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
-            privateMessage.setRecipientId(recipientId);
+            final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
+            outgoingMessage.setRecipientId(recipientId);
 
-            return new SocketResponse<>("OK", "Normal message handled successfully", privateMessage);
+            return new SocketResponse<>("OK", "Normal message handled successfully", outgoingMessage);
         }
         catch (Exception e)
         {
@@ -118,10 +118,10 @@ public class MessageService {
         }
     }
 
-    public ResponseEntity<List<PrivateMessage>> getMessageHistory (int conversationId) {
+    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (int conversationId) {
         try {
-            final List<PrivateMessage> privateMessages = messageRepository.findAllByConversationId(conversationId);
-            return new ResponseEntity<>(privateMessages, HttpStatus.OK);
+            final List<OutgoingMessage> outgoingMessages = messageRepository.findAllByConversationId(conversationId);
+            return new ResponseEntity<>(outgoingMessages, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error fetching past messages");
             System.err.println(e.getMessage());
@@ -129,26 +129,26 @@ public class MessageService {
         }
     }
 
-    private SocketResponse<PrivateMessage> handleNewMessageRequest(UUID senderUUID, String senderUsername, UUID recipientUUID, String message)
+    private SocketResponse<OutgoingMessage> handleNewMessageRequest(UUID senderUUID, String senderUsername, UUID recipientUUID, String message)
     {
         final int newConversationId = conversationsRepository.create();
         conversationsRepository.saveMembers(newConversationId, senderUUID, recipientUUID);
         Integer messageId = messageRepository.save(newConversationId, senderUUID, message);
 
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final PrivateMessage privateMessage = new PrivateMessage(newConversationId, senderUsername, message, messageId, true, timestamp);
+        final OutgoingMessage outgoingMessage = new OutgoingMessage(newConversationId, senderUsername, message, messageId, true, timestamp);
 
-        return new SocketResponse<>("OK", "New message request handled successfully", privateMessage);
+        return new SocketResponse<>("OK", "New message request handled successfully", outgoingMessage);
     }
 
-    private SocketResponse<PrivateMessage> handleExistingMessageRequest (int conversationId, UUID senderId, String senderUsername, String message)
+    private SocketResponse<OutgoingMessage> handleExistingMessageRequest (int conversationId, UUID senderId, String senderUsername, String message)
     {
         Integer messageId = messageRepository.save(conversationId, senderId, message);
 
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, message, messageId, true, timestamp);
+        final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, message, messageId, true, timestamp);
 
-        return new SocketResponse<>("OK", "Existing message request handled successfully", privateMessage);
+        return new SocketResponse<>("OK", "Existing message request handled successfully", outgoingMessage);
     }
 
     private UUID getMessageSenderUUID(SimpMessageHeaderAccessor headerAccessor) {
