@@ -1,3 +1,3 @@
 package com.gabcytn.spring_messaging.model;
 
-public record IncomingMessage(String content, String recipient) {}
+public record IncomingMessage(String content, String recipient, Integer conversationId) {}

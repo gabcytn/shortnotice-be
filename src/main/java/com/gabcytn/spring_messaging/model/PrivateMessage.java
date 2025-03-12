@@ -1,10 +1,12 @@
 package com.gabcytn.spring_messaging.model;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 public class PrivateMessage {
     private int conversationId;
     private String sender;
+    private UUID recipientId;
     private String message;
     private int messageId;
     private boolean isRequest;
@@ -21,6 +23,14 @@ public class PrivateMessage {
         this.conversationId = conversationId;
         this.isRequest = isRequest;
         this.sentAt = sentAt;
+    }
+
+    public UUID getRecipientId() {
+        return recipientId;
+    }
+
+    public void setRecipientId(UUID recipientId) {
+        this.recipientId = recipientId;
     }
 
     public String getSender() {

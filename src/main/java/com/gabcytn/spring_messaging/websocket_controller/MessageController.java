@@ -54,6 +54,6 @@ public class MessageController {
     ) {
         final SocketResponse<PrivateMessage> messageToSend =
                 messageService.sendNormalMessage(headerAccessor, messageReceived, conversationId);
-        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
+        messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }
 }

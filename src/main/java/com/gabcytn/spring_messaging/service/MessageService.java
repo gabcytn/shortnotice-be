@@ -25,16 +25,19 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final BlocksRepository blocksRepository;
     private final UserRepository userRepository;
+    private final ValidatorService validatorService;
 
     public MessageService(
             ConversationsRepository conversationsRepository,
             MessageRepository messageRepository,
             BlocksRepository blocksRepository,
-            UserRepository userRepository) {
+            UserRepository userRepository,
+            ValidatorService validatorService) {
         this.conversationsRepository = conversationsRepository;
         this.messageRepository = messageRepository;
         this.blocksRepository = blocksRepository;
         this.userRepository = userRepository;
+        this.validatorService = validatorService;
     }
 
     public SocketResponse<PrivateMessage> createMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, UUID recipientUUID)
@@ -95,18 +98,15 @@ public class MessageService {
         {
             final UUID senderUUID = getMessageSenderUUID(headerAccessor);
             final String senderUsername = getMessageSenderUsername(headerAccessor);
-            final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
+            // final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
             final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+            UUID recipientId = conversationsRepository.findByIdAndNotMemberId(messageReceived.conversationId(), senderUUID);
 
-            if (recipient.isEmpty())
-                throw new Error("Recipient does not exist");
-            if (!conversationsRepository.existsById(conversationId))
-                throw new Error("Conversation does not exist");
-            if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.get().getId(), senderUUID))
-                throw new Error("Sender is blocked by the recipient");
+            validatorService.validateNormalMessage(senderUUID, recipientId, messageReceived);
 
             Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
             final PrivateMessage privateMessage = new PrivateMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
+            privateMessage.setRecipientId(recipientId);
 
             return new SocketResponse<>("OK", "Normal message handled successfully", privateMessage);
         }

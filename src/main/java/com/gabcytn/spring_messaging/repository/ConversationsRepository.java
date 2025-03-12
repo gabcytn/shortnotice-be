@@ -1,13 +1,16 @@
 package com.gabcytn.spring_messaging.repository;
 
 import com.gabcytn.spring_messaging.model.Conversation;
+import com.gabcytn.spring_messaging.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Repository
@@ -137,5 +140,41 @@ public class ConversationsRepository {
             return new Conversation(id, username, avatar, message, timestamp);
         };
         return jdbcTemplate.query(sqlQuery, conversationRowMapper, requesterId, requesterId, isRequest);
+    }
+
+    // should return whether memberId is a member of the conversation id
+    public Boolean existsByIdAndMemberId(int id, UUID memberId) {
+        final String sqlQuery = """
+                SELECT
+                    *
+                FROM
+                    conversation_members
+                WHERE
+                    conversation_id = ?
+                AND
+                    user_id = ?
+                """;
+
+        final ResultSetExtractor<Boolean> extractor = ResultSet::next;
+
+        return jdbcTemplate.query(sqlQuery, extractor, id, memberId);
+    }
+
+    // should find the user id of the other member of a conversation
+    public UUID findByIdAndNotMemberId(int id, UUID memberId) {
+        final String sqlQuery = """
+                SELECT
+                    conversation_members.user_id
+                FROM
+                    conversation_members
+                WHERE
+                    conversation_id = ?
+                AND
+                    user_id != ?
+                """;
+
+        final ResultSetExtractor<String> extractor = (rs) -> rs.next() ? rs.getString("user_id") : null;
+
+        return UUID.fromString(Objects.requireNonNull(jdbcTemplate.query(sqlQuery, extractor, id, memberId)));
     }
 }
