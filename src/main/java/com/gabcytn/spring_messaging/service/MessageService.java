@@ -111,9 +111,10 @@ public class MessageService {
         }
     }
 
-    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (int conversationId) {
+    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (int conversationId, int cursor) {
+        cursor = cursor == 0 ? messageRepository.getLastMessageId() + 1 : cursor;
         try {
-            final List<OutgoingMessage> outgoingMessages = messageRepository.findAllByConversationId(conversationId);
+            final List<OutgoingMessage> outgoingMessages = messageRepository.findAllByConversationId(conversationId, cursor);
             return new ResponseEntity<>(outgoingMessages, HttpStatus.OK);
         } catch (Exception e) {
             System.err.println("Error fetching past messages");

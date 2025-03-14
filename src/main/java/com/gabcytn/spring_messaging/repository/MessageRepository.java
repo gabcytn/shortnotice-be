@@ -2,6 +2,7 @@ package com.gabcytn.spring_messaging.repository;
 
 import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -25,7 +26,7 @@ public class MessageRepository {
         return jdbcTemplate.queryForObject(sqlQuery, Integer.class, conversationId, sender, message);
     }
 
-    public List<OutgoingMessage> findAllByConversationId(int conversationId) {
+    public List<OutgoingMessage> findAllByConversationId(int conversationId, int cursor) {
         final String sqlQuery = """
                 SELECT
                     conversation_id, users.username AS sender, message, messages.id AS message_id, sent_at
@@ -37,8 +38,11 @@ public class MessageRepository {
                     users.id = messages.sender_id
                 WHERE
                     conversation_id = ?
+                AND
+                    messages.id < ?
                 ORDER BY
                     messages.sent_at DESC
+                LIMIT 20
                 """;
         final RowMapper<OutgoingMessage> privateMessageRowMapper = (rs, rowNum) -> new OutgoingMessage(
                 rs.getInt("conversation_id"),
@@ -48,6 +52,21 @@ public class MessageRepository {
                 false,
                 rs.getTimestamp("sent_at"));
 
-        return jdbcTemplate.query(sqlQuery, privateMessageRowMapper, conversationId);
+        return jdbcTemplate.query(sqlQuery, privateMessageRowMapper, conversationId, cursor);
+    }
+
+    public Integer getLastMessageId () {
+        final String sqlQuery = """
+                SELECT
+                    id
+                FROM
+                    messages
+                ORDER BY
+                    id DESC
+                LIMIT 1
+                """;
+
+        ResultSetExtractor<Integer> extractor = (rs) -> rs.next() ? rs.getInt("id") : 0;
+        return jdbcTemplate.query(sqlQuery, extractor);
     }
 }
