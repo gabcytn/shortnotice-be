@@ -5,11 +5,13 @@ import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
 import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import com.gabcytn.spring_messaging.repository.MessageRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.AccessDeniedException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -111,11 +113,18 @@ public class MessageService {
         }
     }
 
-    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (int conversationId, int cursor) {
+    public ResponseEntity<List<OutgoingMessage>> getMessageHistory (HttpServletRequest request, int conversationId, int cursor) {
         cursor = cursor == 0 ? messageRepository.getLastMessageId() + 1 : cursor;
         try {
+            UUID senderId = UUID.fromString((String) request.getSession().getAttribute("uuid"));
+            if (!conversationsRepository.existsByIdAndMemberId(conversationId, senderId))
+                throw new AccessDeniedException("User is not a member of this conversation");
+
             final List<OutgoingMessage> outgoingMessages = messageRepository.findAllByConversationId(conversationId, cursor);
             return new ResponseEntity<>(outgoingMessages, HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            System.err.println(e.getMessage());
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             System.err.println("Error fetching past messages");
             System.err.println(e.getMessage());
