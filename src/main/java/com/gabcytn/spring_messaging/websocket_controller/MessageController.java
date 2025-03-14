@@ -36,15 +36,14 @@ public class MessageController {
         messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }
 
-    @MessageMapping("/approve/{conversationId}")
+    @MessageMapping("/approve")
     public void approveMessageRequest(
-            @DestinationVariable int conversationId,
             IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
          final SocketResponse<OutgoingMessage> messageToSend =
-                 messageService.acceptMessageRequest(headerAccessor, messageReceived, conversationId);
-         messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
+                 messageService.acceptMessageRequest(headerAccessor, messageReceived);
+         messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }
 
     @MessageMapping("/message")

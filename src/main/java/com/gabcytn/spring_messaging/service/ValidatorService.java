@@ -35,4 +35,12 @@ public class ValidatorService {
         if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID))
             throw new Error("User is blocked");
     }
+
+    public void validateMessageRequestAcceptance (UUID senderId, UUID recipientId, IncomingMessage incomingMessage) {
+        validateNormalMessage(senderId, recipientId, incomingMessage);
+
+        // checks if the conversation (id) is a request
+        if (!conversationsRepository.existsByIdAndRequestTrue(incomingMessage.conversationId()))
+            throw new Error("Conversation is not a request");
+    }
 }

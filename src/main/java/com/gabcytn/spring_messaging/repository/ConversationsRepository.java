@@ -177,4 +177,20 @@ public class ConversationsRepository {
 
         return UUID.fromString(Objects.requireNonNull(jdbcTemplate.query(sqlQuery, extractor, id, memberId)));
     }
+
+    public Boolean existsByIdAndRequestTrue (int id) {
+        final String sqlQuery = """
+                SELECT
+                    COUNT(id)
+                FROM
+                    conversations
+                WHERE
+                    id = ?
+                AND
+                    request = TRUE
+                """;
+
+        final ResultSetExtractor<Boolean> extractor = ResultSet::next;
+        return jdbcTemplate.query(sqlQuery, extractor, id);
+    }
 }

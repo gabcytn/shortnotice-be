@@ -3,11 +3,8 @@ package com.gabcytn.spring_messaging.service;
 import com.gabcytn.spring_messaging.model.IncomingMessage;
 import com.gabcytn.spring_messaging.model.OutgoingMessage;
 import com.gabcytn.spring_messaging.model.SocketResponse;
-import com.gabcytn.spring_messaging.model.User;
-import com.gabcytn.spring_messaging.repository.BlocksRepository;
 import com.gabcytn.spring_messaging.repository.ConversationsRepository;
 import com.gabcytn.spring_messaging.repository.MessageRepository;
-import com.gabcytn.spring_messaging.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -16,27 +13,20 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class MessageService {
     private final ConversationsRepository conversationsRepository;
     private final MessageRepository messageRepository;
-    private final BlocksRepository blocksRepository;
-    private final UserRepository userRepository;
     private final ValidatorService validatorService;
 
     public MessageService(
             ConversationsRepository conversationsRepository,
             MessageRepository messageRepository,
-            BlocksRepository blocksRepository,
-            UserRepository userRepository,
             ValidatorService validatorService) {
         this.conversationsRepository = conversationsRepository;
         this.messageRepository = messageRepository;
-        this.blocksRepository = blocksRepository;
-        this.userRepository = userRepository;
         this.validatorService = validatorService;
     }
 
@@ -67,23 +57,22 @@ public class MessageService {
         }
     }
 
-    public SocketResponse<OutgoingMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
+    public SocketResponse<OutgoingMessage> acceptMessageRequest (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived)
     {
         try
         {
-            final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
-            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
-            final String senderUsername = getMessageSenderUsername(headerAccessor);
-            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+            int conversationId = messageReceived.conversationId();
+            UUID senderId = getMessageSenderUUID(headerAccessor);
+            UUID recipientId = conversationsRepository.findByIdAndNotMemberId(messageReceived.conversationId(), senderId);
+            String senderUsername = getMessageSenderUsername(headerAccessor);
+            Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
 
-            if (recipient.isEmpty())
-                throw new Error("Recipient not found");
-            if (blocksRepository.existsByBlockerIdAndBlockedId(recipient.get().getId(), senderUUID))
-                throw new Error("User is blocked");
+            validatorService.validateMessageRequestAcceptance(senderId, recipientId, messageReceived);
 
             conversationsRepository.setRequestFalseById(conversationId);
-            Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
+            Integer messageId = messageRepository.save(conversationId, senderId, messageReceived.content());
+
+            OutgoingMessage outgoingMessage = setOutgoingMessage(conversationId, senderUsername, recipientId, messageId, messageReceived.content(), false, timestamp);
             return new SocketResponse<>("OK", "Accepting message request handled successfully", outgoingMessage);
         }
         catch (Exception e)
