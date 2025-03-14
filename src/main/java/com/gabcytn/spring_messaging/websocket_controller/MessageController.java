@@ -33,7 +33,7 @@ public class MessageController {
     ) {
         final SocketResponse<OutgoingMessage> messageToSend =
                 messageService.createMessageRequest(headerAccessor, messageReceived, uuid);
-        messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
+        messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }
 
     @MessageMapping("/approve/{conversationId}")

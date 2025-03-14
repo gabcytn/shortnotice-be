@@ -44,18 +44,20 @@ public class MessageService {
     {
         try
         {
-            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
-            final String senderUsername = getMessageSenderUsername(headerAccessor);
-            final String content = messageReceived.content();
+            UUID senderId = getMessageSenderUUID(headerAccessor);
+            String senderUsername = getMessageSenderUsername(headerAccessor);
+            String content = messageReceived.content();
 
-            if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID))
-                throw new Error("User is blocked");
+            validatorService.validateMessageRequest(recipientUUID, senderId);
 
-            final Integer conversationId = conversationsRepository.existsByMembers(recipientUUID, senderUUID);
-            if (conversationId != null && conversationId > 0)
-                return handleExistingMessageRequest(conversationId, senderUUID, senderUsername, content);
+            final Integer conversationId = conversationsRepository.existsByMembers(recipientUUID, senderId);
 
-            return handleNewMessageRequest(senderUUID, senderUsername, recipientUUID, content);
+            if (conversationId != null && conversationId > 0) {
+                UUID recipientId = conversationsRepository.findByIdAndNotMemberId(conversationId, senderId);
+                return handleExistingMessageRequest(conversationId, recipientId, senderId, senderUsername, content);
+            }
+
+            return handleNewMessageRequest(senderId, senderUsername, recipientUUID, content);
         }
         catch (Exception e)
         {
@@ -106,14 +108,9 @@ public class MessageService {
             Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
             Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
 
-            final OutgoingMessage outgoingMessage = new OutgoingMessage();
-            outgoingMessage.setConversationId(conversationId);
-            outgoingMessage.setSender(senderUsername);
-            outgoingMessage.setRecipientId(recipientId);
-            outgoingMessage.setMessageId(messageId);
-            outgoingMessage.setMessage(messageReceived.content());
-            outgoingMessage.setRequest(false);
-            outgoingMessage.setSentAt(timestamp);
+            final OutgoingMessage outgoingMessage = setOutgoingMessage(
+                    conversationId, senderUsername, recipientId, messageId,
+                    messageReceived.content(), false, timestamp);
 
             return new SocketResponse<>("OK", "Normal message handled successfully", outgoingMessage);
         }
@@ -148,12 +145,12 @@ public class MessageService {
         return new SocketResponse<>("OK", "New message request handled successfully", outgoingMessage);
     }
 
-    private SocketResponse<OutgoingMessage> handleExistingMessageRequest (int conversationId, UUID senderId, String senderUsername, String message)
+    private SocketResponse<OutgoingMessage> handleExistingMessageRequest (int conversationId, UUID senderId, UUID recipientId, String senderUsername, String message)
     {
         Integer messageId = messageRepository.save(conversationId, senderId, message);
 
         final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
-        final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, message, messageId, true, timestamp);
+        final OutgoingMessage outgoingMessage = setOutgoingMessage(conversationId, senderUsername, recipientId, messageId, message, true, timestamp);
 
         return new SocketResponse<>("OK", "Existing message request handled successfully", outgoingMessage);
     }
@@ -164,5 +161,19 @@ public class MessageService {
 
     private String getMessageSenderUsername(SimpMessageHeaderAccessor headerAccessor) {
         return (String) headerAccessor.getSessionAttributes().get("username");
+    }
+
+    private OutgoingMessage setOutgoingMessage (int conversationId, String senderUsername, UUID recipientId, int messageId, String message, boolean isRequest, Timestamp timestamp)
+    {
+        final OutgoingMessage outgoingMessage = new OutgoingMessage();
+        outgoingMessage.setConversationId(conversationId);
+        outgoingMessage.setSender(senderUsername);
+        outgoingMessage.setRecipientId(recipientId);
+        outgoingMessage.setMessageId(messageId);
+        outgoingMessage.setMessage(message);
+        outgoingMessage.setRequest(false);
+        outgoingMessage.setSentAt(timestamp);
+
+        return outgoingMessage;
     }
 }

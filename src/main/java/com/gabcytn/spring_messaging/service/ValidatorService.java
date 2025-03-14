@@ -30,4 +30,9 @@ public class ValidatorService {
         if (blocksRepository.existsByBlockerIdAndBlockedId(recipientId, senderId))
             throw new Error("Sender is blocked by the recipient");
     }
+
+    public void validateMessageRequest (UUID recipientUUID, UUID senderUUID) {
+        if (blocksRepository.existsByBlockerIdAndBlockedId(recipientUUID, senderUUID))
+            throw new Error("User is blocked");
+    }
 }
