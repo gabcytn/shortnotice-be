@@ -92,21 +92,28 @@ public class MessageService {
         }
     }
 
-    public SocketResponse<OutgoingMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived, int conversationId)
+    public SocketResponse<OutgoingMessage> sendNormalMessage (SimpMessageHeaderAccessor headerAccessor, IncomingMessage messageReceived)
     {
         try
         {
-            final UUID senderUUID = getMessageSenderUUID(headerAccessor);
-            final String senderUsername = getMessageSenderUsername(headerAccessor);
-            // final Optional<User> recipient = userRepository.findByUsername(messageReceived.recipient());
-            final Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+            UUID senderUUID = getMessageSenderUUID(headerAccessor);
+            String senderUsername = getMessageSenderUsername(headerAccessor);
             UUID recipientId = conversationsRepository.findByIdAndNotMemberId(messageReceived.conversationId(), senderUUID);
+            int conversationId = messageReceived.conversationId();
 
             validatorService.validateNormalMessage(senderUUID, recipientId, messageReceived);
 
             Integer messageId = messageRepository.save(conversationId, senderUUID, messageReceived.content());
-            final OutgoingMessage outgoingMessage = new OutgoingMessage(conversationId, senderUsername, messageReceived.content(), messageId, false, timestamp);
+            Timestamp timestamp = Timestamp.valueOf(LocalDateTime.now());
+
+            final OutgoingMessage outgoingMessage = new OutgoingMessage();
+            outgoingMessage.setConversationId(conversationId);
+            outgoingMessage.setSender(senderUsername);
             outgoingMessage.setRecipientId(recipientId);
+            outgoingMessage.setMessageId(messageId);
+            outgoingMessage.setMessage(messageReceived.content());
+            outgoingMessage.setRequest(false);
+            outgoingMessage.setSentAt(timestamp);
 
             return new SocketResponse<>("OK", "Normal message handled successfully", outgoingMessage);
         }

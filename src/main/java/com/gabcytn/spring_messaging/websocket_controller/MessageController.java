@@ -47,14 +47,13 @@ public class MessageController {
          messagingTemplate.convertAndSend("/topic/private/" + messageReceived.recipient(), messageToSend);
     }
 
-    @MessageMapping("/private/{conversationId}")
+    @MessageMapping("/message")
     public void sendPrivateMessage (
-            @DestinationVariable int conversationId,
             IncomingMessage messageReceived,
             SimpMessageHeaderAccessor headerAccessor
     ) {
         final SocketResponse<OutgoingMessage> messageToSend =
-                messageService.sendNormalMessage(headerAccessor, messageReceived, conversationId);
+                messageService.sendNormalMessage(headerAccessor, messageReceived);
         messagingTemplate.convertAndSend("/topic/private/" + messageToSend.getBody().getRecipientId(), messageToSend);
     }
 }
